@@ -1,0 +1,7 @@
+{
+  "login/bn_offline": [{
+    "name": "login/bn_offline", 
+    "probability": 0.89, 
+    "times": 10
+  }]
+}

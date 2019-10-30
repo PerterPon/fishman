@@ -37,7 +37,9 @@ export async function startWork(): Promise<void> {
     };
     remember(memory);
 
+    console.time('judge situation time');
     const situation: TSituation = await calculateSituation();
+    console.timeEnd('judge situation time');
     let situationName: string = '';
     if (null === situation) {
       console.log(chalk.yellow('can not get situation!'));

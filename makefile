@@ -33,6 +33,11 @@ dev: build-ts
 	NODE_PATH=$(BUILD_FOLDER) DEBUG="true" node src/index.js --env dev
 	@echo "dev start success!"
 
+debug: build-ts
+	cd $(DIRNAME)/build && \
+	NODE_PATH=$(BUILD_FOLDER) DEBUG="true" node --inspect src/index.js --env dev
+	@echo "dev start success!"
+
 start: build-ts
 	$(PM2) stop all || echo "no running process found"
 	$(PM2) delete all || echo "no running process found"

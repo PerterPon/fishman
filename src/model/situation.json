@@ -1,7 +1,9 @@
 {
-  "login/bn_offline": [{
-    "name": "login/bn_offline", 
-    "probability": 0.89, 
-    "times": 10
-  }]
+    "login/bn_offline": [
+        {
+            "name": "login/bn_online",
+            "probability": 1,
+            "times": 79
+        }
+    ]
 }

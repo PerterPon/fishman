@@ -10,15 +10,18 @@ import * as path from 'path';
 import * as _ from 'lodash';
 
 import { TSituation, TSituationProbability } from 'fishman';
+import { sleep } from 'src/util';
 
 type TSituationData = {
   [name: string]: TSituationProbability[];
 }
 
+const situationPath: string = path.join('/Users/pon/project/fishman/src/model/', 'situation.json');
+const situationData: TSituationData = getSituationModel();
+
 export const situations: Map<string, TSituation> = new Map();
 
 export function getSituationModel(): TSituationData {
-  const situationPath: string = path.join(__dirname, './situation.json');
   const situationContent: string = fs.readFileSync(situationPath, 'utf-8');
   let situationData: TSituationData;
   try {
@@ -31,21 +34,20 @@ export function getSituationModel(): TSituationData {
 }
 
 export function getSituationProbability(name: string): TSituationProbability[] {
-  const situationData: TSituationData = getSituationModel();
+  // const situationData: TSituationData = getSituationModel();
   return situationData[name] || [];
 }
 
 export function updateSituationModel(name: string, nextSituation: string): void {
-  const situationData: TSituationData = getSituationModel();
+  // const situationData: TSituationData = getSituationModel();
   let situation = situationData[name];
   // 1. get situation data
   if (undefined === situation) {
-    console.log(`new situation: [${situation}]`);
+    console.log(`new situation: [${name}]`);
     situationData[name] = [];
     situation = situationData[name];
   }
-
-  let nextSituationData: any = _.find(situationData, {name: nextSituation} as any);
+  let nextSituationData: any = _.find(situation, {name: nextSituation} as any);
   if (undefined === nextSituationData) {
     nextSituationData = {
       name: nextSituation,
@@ -57,9 +59,9 @@ export function updateSituationModel(name: string, nextSituation: string): void 
 
   nextSituationData.times++;
   // 2. cal probability
-  let totalTimes: number = _.sumBy(nextSituationData, 'times');
-  for (let i = 0; i < nextSituationData.length; i++) {
-    const item = nextSituationData[i];
+  let totalTimes: number = _.sumBy(situation, 'times');
+  for (let i = 0; i < situation.length; i++) {
+    const item = situation[i];
     item.probability = Number((item.times / totalTimes).toFixed(4));
   }
 
@@ -67,6 +69,17 @@ export function updateSituationModel(name: string, nextSituation: string): void 
   situationData[name] = _.sortBy(situation, 'probability').reverse();
 
   // 4. write to file
-  const situationPath: string = path.join(__dirname, './situation.json');
-  fs.writeFileSync(situationPath, JSON.stringify(situationData, [' '], 4));
+  
 }
+
+async function intervalSync(): Promise<void> {
+
+  while (true) {
+    await sleep(10 * 1000);
+    fs.writeFileSync(situationPath, JSON.stringify(situationData, '' as any, 4));
+  }
+
+}
+
+intervalSync();
+

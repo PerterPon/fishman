@@ -8,8 +8,9 @@
 import { TSituation } from "fishman";
 
 export async function judge(): Promise<boolean> {
-  return true;
+  return false;
 }
+
 export const situation: TSituation = {
   name: 'login/bn_offline',
   required: [],

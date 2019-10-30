@@ -5,13 +5,22 @@
 * Create: Fri Oct 25 2019 18:27:22 GMT+0800 (China Standard Time)
 */
 
+import chalk from 'chalk';
+
 import vision from 'src/vision';
 
-import { judgeSituation, getSituation } from 'src/situation';
-import { getSituationProbability } from 'src/model';
+import { judgeSituation, getSituation, getAllSituation } from 'src/situation';
+import { getSituationProbability, updateSituationModel } from 'src/model';
 
 import { TSituation, TSituationProbability } from "fishman";
 
+
+/**
+ * calculate current situation
+ *
+ * @export
+ * @returns {Promise<TSituation>}
+ */
 export async function calculateSituation(): Promise<TSituation> {
   const currentSituation: TSituation = vision.situation;
   
@@ -29,7 +38,23 @@ export async function calculateSituation(): Promise<TSituation> {
   }
 
   if (null === situation) {
-    // TODO: add situation global judge logic
+    debugger;
+    console.log(chalk.yellow(`enter full situation scan!`));
+    const allSituations: string[] = getAllSituation();
+    for (let i = 0; i < allSituations.length; i++) {
+      const sName: string = allSituations[i];
+      debugger;
+      const result: boolean = await judgeSituation(sName);
+      if (true === result) {
+        situation = getSituation(sName);
+        break;
+      }
+    }
   }
+
+  if (null !== situation) {
+    updateSituationModel(currentSituation.name, situation.name);
+  }
+
   return situation;
 }

@@ -9,6 +9,9 @@ _MOCHA = $(DIRNAME)/node_modules/.bin/_mocha
 BUILD_FOLDER = $(DIRNAME)/build
 TEST_FOLDER = $(DIRNAME)/test_output
 
+temp:
+	node src/template.js
+
 build-ts:
 	rm -rf $(BUILD_FOLDER)
 	$(TSC)
@@ -30,12 +33,17 @@ test-cov: build-test
 
 dev: build-ts
 	cd $(DIRNAME)/build && \
-	NODE_PATH=$(BUILD_FOLDER) DEBUG="true" node src/index.js --env dev
+	NODE_PATH=$(BUILD_FOLDER) DEBUG="*" node src/index.js --env dev
 	@echo "dev start success!"
 
 debug: build-ts
 	cd $(DIRNAME)/build && \
 	NODE_PATH=$(BUILD_FOLDER) DEBUG="true" node --inspect src/index.js --env dev
+	@echo "dev start success!"
+
+profile: build-ts
+	cd $(DIRNAME)/build && \
+	NODE_PATH=$(BUILD_FOLDER) DEBUG="true" node --prof src/index.js --env dev
 	@echo "dev start success!"
 
 start: build-ts

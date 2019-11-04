@@ -7,13 +7,17 @@
 
 import { TSituation } from "fishman";
 
+import { getAction } from 'src/action';
+
 export async function judge(): Promise<boolean> {
   return true;
 }
 
-export const situation: TSituation = {
-  name: 'login/bn_online',
-  required: [],
-  optional: [],
-  action: [],
-};
+export async function getSituation(): Promise<TSituation> {
+  return {
+    name: 'login/bn_online',
+    required: [],
+    optional: [],
+    action: getAction('login/open_game')
+  };
+}

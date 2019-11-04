@@ -6,7 +6,8 @@
 */
 
 declare module 'fishman' {
-  import { EAction } from "src/constants/enums";
+  import { EAction, ETemplateJudgeType, ETemplate } from "src/constants/enums";
+  import { Bitmap } from "robotjs";
 
   export interface TPoint {
     x: number;
@@ -14,6 +15,19 @@ declare module 'fishman' {
   }
 
   export type TPixel = [number, number, number];
+
+  export interface THEXPoint {
+    point: TPoint;
+    color: string;
+  }
+
+  export interface TPointTemplate {
+    name: ETemplate;
+    width: number;
+    height: number;
+    points: THEXPoint[];
+    type: ETemplateJudgeType;
+  }
 
   export interface TRect {
     x: number;
@@ -47,7 +61,9 @@ declare module 'fishman' {
     name: string;
     required: TFeature[];
     optional?: TFeature[];
-    action: TAction[];
+    action: TAction;
+    nextLookTime?: number;
+    nextView?: TRect;
   }
 
   export interface TSituationProbability {
@@ -57,21 +73,34 @@ declare module 'fishman' {
   }
 
   export interface TAction {
-    type: EAction;
-    time: number;
-    done: boolean;
-    resData: unknown;
+    name: string;
+    time?: number;
+    done?: boolean;
+    view?: TRect;
+    review?: boolean;
+    resData?: unknown;
+    targetRectTemps?: ETemplate[];
   }
 
   export interface TMemory {
     time: number;
     rect: TRect;
-    // data: TPixel[];
-    pixel: TPixel[];
+    picture: TBitmap;
   }
 
   export interface TContext {
     memory: TMemory;
     situation: string;
   }
+
+  export interface TScreenShort {
+    image: Buffer;
+    colorAt(x: number, y: number) : [number, number, number];
+  }
+
+  export interface TBitmap extends Bitmap {
+    pixel: Uint8Array;
+    image: Buffer;
+  }
+
 }

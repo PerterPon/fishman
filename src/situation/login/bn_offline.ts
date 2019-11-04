@@ -6,6 +6,7 @@
 */
 
 import { TSituation } from "fishman";
+import { getAction } from 'src/action';
 
 export async function judge(): Promise<boolean> {
   return false;
@@ -15,5 +16,5 @@ export const situation: TSituation = {
   name: 'login/bn_offline',
   required: [],
   optional: [],
-  action: [],
+  action: getAction('login/bn_login'),
 };

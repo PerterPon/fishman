@@ -5,14 +5,26 @@
 * Create: Fri Oct 25 2019 20:06:57 GMT+0800 (China Standard Time)
 */
 
-import { EAction } from "src/constants/enums";
+import { EAction, ETemplate } from "src/constants/enums";
+import { TAction, TPoint } from "fishman";
 
-type Action = Function;
+export async function executeAction(name: string, templateData: Map<ETemplate, TPoint>): Promise<void> {
+  const actionData = require(`./${name}`);
+  if (undefined === actionData) {
+    console.log(`no action found by name: [${name}]`);
+    return null;
+  }
 
-export const actionMap: Map<EAction, Action> = new Map([
-  
-]);
+  await actionData.doAction(name, templateData);
+}
 
-export async function executeAction(): Promise<void> {
-  
+export function getAction(name: string): TAction {
+  const actionData = require(`./${name}`);
+  if (undefined === actionData) {
+    console.log(`no action found by name: [${name}]`);
+    return null;
+  }
+
+  const situation: TAction = actionData.getAction();
+  return situation;
 }

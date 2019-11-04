@@ -31,6 +31,12 @@ for(let i = 0; i < allFolder.length; i++) {
   situationMap.set(folderName, situations);
 }
 
+export async function init(): Promise<void> {
+  console.log('init situation ...');
+
+  console.log('init situation success ...');
+}
+
 export async function judgeSituation(name: string): Promise<boolean> {
   const situationData = require(`./${name}`);
   if (undefined === situationData) {
@@ -47,7 +53,8 @@ export function getSituation(name: string): TSituation {
     return null;
   }
 
-  return situationData.situation;
+  const situation: TSituation = situationData.getSituation();
+  return situation;
 }
 
 export function getFolderSituation(folderName: string): string[] {

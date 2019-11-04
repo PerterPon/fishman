@@ -5,17 +5,12 @@
 * Create: Fri Oct 25 2019 17:51:57 GMT+0800 (China Standard Time)
 */
 
-import { TRect, TPixel } from "fishman";
+import { TRect, TBitmap } from "fishman";
 
-const watchingArea: TRect = {
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0
-};
+import { capture } from 'src/ability/capture';
 
-export async function look(rect: TRect): Promise<TPixel[]> {
-  return [];
+export function look(rect: TRect): TBitmap {
+  return capture(rect);
 }
 
 export async function read(rect: TRect): Promise<string[]> {

@@ -10,11 +10,21 @@ export enum ESituation {
 }
 
 export enum EAction {
-
+  BN_LOGIN
 }
 
 export enum EGoal {
   FISH,
   AUCTION,
   ALCHEMY
+}
+
+export enum ETemplate {
+  BN_LOGIN_BUTTON = 'bn_login_button',
+  GAME_LOGIN_BUTTON = 'game_login_button'
+}
+
+export enum ETemplateJudgeType {
+  FROM_ORIGIN,
+  FROM_CENTER
 }

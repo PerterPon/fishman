@@ -19,8 +19,9 @@ type TSituationData = {
   [name: string]: TSituationProbability[];
 }
 
+const modelDir = path.resolve(__dirname, '../../../', './src/model');
 const config = getConfig();
-const situationPath: string = path.join(config.modelDir, 'situations', `${config.biz}.json`);
+const situationPath: string = path.join(modelDir, 'situations', `${config.biz}.json`);
 let situationData: TSituationData = null;
 
 export const situations: Map<string, TSituation> = new Map();

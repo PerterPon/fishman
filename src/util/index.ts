@@ -5,10 +5,14 @@
 * Create: Mon Oct 21 2019 15:16:59 GMT+0800 (中国标准时间)
 */
 
-import { TPixel, TPoint, TBitmap, TPointTemplate } from "fishman";
-import { Bitmap } from "robotjs";
 import { getTemplate } from "src/model/template";
+import * as mouse from 'src/ability/mouse';
+import chalk from 'chalk';
+import { templateJudge } from 'src/ability/image_id';
+
 import { ETemplate } from "src/constants/enums";
+
+import { TPixel, TPoint, TBitmap, TPointTemplate, TMemory } from "fishman";
 
 export async function sleep(time: number): Promise<void> {
   return new Promise((resolve) => {
@@ -52,4 +56,34 @@ export function getTemplateCenter(templateName: ETemplate): TPoint {
     x: Math.floor(width / 2),
     y: Math.floor(height / 2),
   }
+}
+
+export function templateBtnClick(lastPoint: TPoint, templateMap: Map<ETemplate, TPoint>, template: ETemplate): TPoint {
+  const templatePoint: TPoint = templateMap.get(ETemplate.BN_LOGIN_BUTTON);
+  let nowPoint: TPoint = templatePoint || lastPoint;
+
+  if (null === templatePoint) {
+    console.error(`trying to do action: [bn_login], but with no template point data!`);
+    return;
+  }
+
+  const centerPoint: TPoint = getTemplateCenter(ETemplate.BN_LOGIN_BUTTON);
+  mouse.moveTo(centerPoint.x + nowPoint.x, centerPoint.y + nowPoint.y);
+  humanDelay();
+  mouse.leftClick();
+  humanDelay();
+
+  return nowPoint;
+}
+
+export function imgTemplateJudge(memory: TMemory, template: ETemplate): TPoint {
+  const templateInfo: TPointTemplate = getTemplate(template);
+  if (undefined === templateInfo) {
+    console.log(chalk.red(`trying to judge template: [${template}], but got null`));
+    return null;
+  }
+
+  const memoryPicture: TBitmap = memory.picture;
+  const point: TPoint = templateJudge(memoryPicture, templateInfo);
+  return point;
 }

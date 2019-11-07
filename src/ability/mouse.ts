@@ -6,15 +6,15 @@
 */
 
 export function moveTo(x: number, y: number): void {
-  
+  console.log('move to: ', x, y);
 }
 
 export function leftClick(): void {
-
+  console.log('left click');
 }
 
 export function rightClick(): void {
-  
+
 }
 
 export function leftDown(): void {

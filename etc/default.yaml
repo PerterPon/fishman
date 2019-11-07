@@ -1,4 +1,6 @@
 
-modelDir: /Users/pon/project/fishman
+modelDir: /Users/pon/project/fishman/src/model
 
 intelligence: false
+
+biz: upgrade

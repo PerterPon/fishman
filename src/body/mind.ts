@@ -18,7 +18,8 @@ import { templateJudge } from 'src/ability/image_id';
 
 import { ETemplate } from 'src/constants/enums';
 
-import { TSituation, TSituationProbability, TPoint, TPointTemplate, TBitmap } from "fishman";
+import { TSituation, TSituationProbability, TPoint, TPointTemplate, TBitmap, TMemory } from "fishman";
+import { imgTemplateJudge } from 'src/util';
 
 /**
  * calculate current situation
@@ -30,13 +31,18 @@ export async function calculateSituation(): Promise<TSituation> {
   const currentSituation: TSituation = vision.situation;
 
   let situation: TSituation = null;
+  const memory: TMemory[] = recall(10);
   if (null !== currentSituation) {
     const spData: TSituationProbability[] = getSituationProbability(currentSituation.name);
 
     for (let i = 0; i < spData.length; i++) {
       const sp: TSituationProbability = spData[i];
       const sName: string = sp.name;
-      const rightSituation: boolean = await judgeSituation(sName);
+      if (undefined === sName) {
+        console.log(chalk.yellow(`trying to visit situation model with current situation: [${currentSituation.name}], but data has no name!`));
+        continue;
+      }
+      const rightSituation: boolean = await judgeSituation(sName, memory);
       if (true === rightSituation) {
         situation = getSituation(sName);
         break;
@@ -47,6 +53,11 @@ export async function calculateSituation(): Promise<TSituation> {
   if (null === situation) {
     console.log(chalk.yellow(`enter full situation scan!`));
     const matchedSName: string = await judgeGloablSituation();
+    if (null === matchedSName) {
+      console.log(chalk.red(`could not get current situation from global scan! Check the situation manual!`));
+      return null;
+    }
+
     situation = getSituation(matchedSName);
   }
 
@@ -60,9 +71,11 @@ export async function calculateSituation(): Promise<TSituation> {
 export async function judgeGloablSituation(): Promise<string> {
   const allSituations: string[] = getAllSituation();
   let situationName: string = null;
+  debugger;
+  const memory: TMemory[] = recall(10);
   for (let i = 0; i < allSituations.length; i++) {
     const sName: string = allSituations[i];
-    const result: boolean = await judgeSituation(sName);
+    const result: boolean = await judgeSituation(sName, memory);
     if (true === result) {
       situationName = sName;
       break;
@@ -73,15 +86,6 @@ export async function judgeGloablSituation(): Promise<string> {
 }
 
 export function judgeTemplate(template: ETemplate): TPoint {
-
-  const templateInfo: TPointTemplate = getTemplate(template);
-  if (undefined === templateInfo) {
-    console.log(chalk.red(`trying to judge template: [${template}], but got null`));
-    return null;
-  }
-
   const [memory] = recall();
-  const memoryPicture: TBitmap = memory.picture;
-  const point: TPoint = templateJudge(memoryPicture, templateInfo);
-  return point;
+  return imgTemplateJudge(memory, template);
 }

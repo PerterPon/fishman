@@ -31,6 +31,7 @@ process.on('uncaughtException', (error) => {
   console.log(`uncaughtException: [${error.message}]`);
   console.log(error.stack);
   console.log('-------------------------------------');
+  process.exit(1);
 });
 
 process.on('unhandledRejection', (error: any) => {
@@ -38,4 +39,5 @@ process.on('unhandledRejection', (error: any) => {
   console.log(`unhandledRejection: [${error.message }]`);
   console.log(error.stack);
   console.log('=====================================');
+  process.exit(1);
 });

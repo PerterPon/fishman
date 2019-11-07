@@ -27,16 +27,14 @@ const debugLog: debug.Debugger = debug("brain");
 const config = getConfig();
 
 export async function startWork(): Promise<void> {
-
+  const config = getConfig();
+  vision.biz = config.biz;
   console.log('start working ...');
 
   while (true) {
     await sleep(vision.nextLookTime || LOOK_DELAY);
     const memory: TMemory = await doLook(vision.nextView || TOTAL_VISION);
-    const situationStart: Date = new Date();
     const situation: TSituation = await calculateSituation();
-    const situationEnd: Date = new Date();
-    debugLog(`judge situation take time: [${+situationEnd - +situationStart}]ms`);
     let situationName: string = '';
 
     if (null === situation) {
@@ -54,16 +52,20 @@ export async function startWork(): Promise<void> {
       }
       console.log(`got situation: [${situationName}]`);
       const action: TAction = situation.action;
-      let templatePoints: Map<ETemplate, TPoint> = null;
+      let templatePoints: Map<ETemplate, TPoint> = new Map();
 
       // if action need review, look another picture
       if (true === action.review || true === config.intelligence) {
+        let view: TRect = null;
+
+        // action did not provide view, use the default view
         if(undefined === action.view) {
-          console.log(chalk.red(`action: [${action.name}] need review, but did not provide view rect!`));
-        } else {
-          await doLook(action.view);
-          templatePoints = findActionTemplate(action.view, action.targetRectTemps);
+          view = TOTAL_VISION;
+          console.log(chalk.yellow(`action: [${action.name}] need review, but did not provide view rect! Using the default view`));
         }
+
+        await doLook(view);
+        templatePoints = findActionTemplate(view, action.targetRectTemps);
       }
 
       await doAction(action, templatePoints);
@@ -74,7 +76,7 @@ export async function startWork(): Promise<void> {
 
 }
 
-function findActionTemplate(view: TRect,templates: ETemplate[]): Map<ETemplate, TPoint> {
+function findActionTemplate(view: TRect, templates: ETemplate[]): Map<ETemplate, TPoint> {
   const templateMap: Map<ETemplate, TPoint> = new Map();
   for (let i = 0; i < templates.length; i++) {
     const template: ETemplate = templates[i];

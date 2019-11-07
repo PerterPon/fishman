@@ -8,7 +8,7 @@
 import { TAction } from "fishman";
 
 export function getAction(): TAction {
-
+  return null;
 }
 
 export async function doAction(): Promise<void> {

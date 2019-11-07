@@ -8,8 +8,9 @@
 import chalk from 'chalk';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as _ from 'lodash';
 
-import { TSituation } from 'fishman';
+import { TSituation, TMemory } from 'fishman';
 
 let allSituations: string[] = [];
 let situationMap: Map<string, string[]> = new Map();
@@ -37,13 +38,19 @@ export async function init(): Promise<void> {
   console.log('init situation success ...');
 }
 
-export async function judgeSituation(name: string): Promise<boolean> {
+export async function judgeSituation(name: string, memory: TMemory[]): Promise<boolean> {
+  debugger;
   const situationData = require(`./${name}`);
   if (undefined === situationData) {
     console.log(chalk.yellow(`no situation found by name: [${name}]`));
     return false;
   }
-  return await situationData.judge();
+
+  if (true === _.isFunction(situationData.judge)) {
+    return await situationData.judge(memory);
+  }
+
+  return false;
 }
 
 export function getSituation(name: string): TSituation {
@@ -53,7 +60,13 @@ export function getSituation(name: string): TSituation {
     return null;
   }
 
-  const situation: TSituation = situationData.getSituation();
+  let situation: TSituation = null;
+  if (false === _.isFunction(situationData.getSituation)) {
+    console.log(chalk.red(`trying to get situation: [${name}], but has not export!`));
+  } else {
+    situation = situationData.getSituation();
+  }
+
   return situation;
 }
 

@@ -8,13 +8,14 @@
 const robotjs = require('robotjs');
 const path = require('path');
 const fs = require('fs');
+const _ = require('lodash');
 
 // const model = require('./model/template.json');
 const modelString = fs.readFileSync(path.join(__dirname, './model/template.json'), 'utf-8');
 
-const name = 'test';
-const startX = 400;
-const startY = 400;
+const name = 'bn_login_button';
+const startX = 100;
+const startY = 100;
 const width = 100;
 const height = 100;
 console.time('template');
@@ -45,7 +46,12 @@ const template = {
 const lines = modelString.split('\n');
 lines.shift();
 
+_.remove(lines, (val) => {
+  return -1 < val.indexOf(`"${name}": `);
+});
+
 lines.unshift(`  "${name}": ${JSON.stringify(template)},`);
 lines.unshift('{');
+
 fs.writeFileSync(path.join(__dirname, './model/template.json'), lines.join('\n'));
 console.timeEnd('template');

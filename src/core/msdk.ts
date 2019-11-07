@@ -14,7 +14,7 @@ export async function init(): Promise<void> {
 }
 
 export function moveTo(point: TPoint): void {
-
+  console.log('move to', point);
 }
 
 export function leftClick(): void {

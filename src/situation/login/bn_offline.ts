@@ -5,16 +5,23 @@
 * Create: Mon Oct 28 2019 21:30:08 GMT+0800 (China Standard Time)
 */
 
-import { TSituation } from "fishman";
 import { getAction } from 'src/action';
 
-export async function judge(): Promise<boolean> {
-  return false;
+import { matchFeature } from 'src/feature';
+
+import { TSituation, TMemory } from "fishman";
+import { EFeature } from 'src/constants/enums';
+
+export async function judge(memory: TMemory[]): Promise<boolean> {
+  const hasBnLoginBtn: boolean = matchFeature(EFeature.BN_LOGIN_BTN, memory);
+  return hasBnLoginBtn;
 }
 
-export const situation: TSituation = {
-  name: 'login/bn_offline',
-  required: [],
-  optional: [],
-  action: getAction('login/bn_login'),
-};
+export function getSituation(): TSituation {
+  return {
+    name: 'login/bn_offline',
+    required: [],
+    optional: [],
+    action: getAction('login/bn_login'),
+  }
+}

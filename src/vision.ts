@@ -6,7 +6,7 @@
  */
 
 import { TAction, TMemory, TSituation, TRect, TContext } from 'fishman';
-import { EGoal } from 'src/constants/enums';
+import { EGoal, EBiz } from 'src/constants/enums';
 import { TOTAL_VISION, LOOK_DELAY } from './constants';
 
 let currentGoal: EGoal = EGoal.FISH;
@@ -17,6 +17,7 @@ let currentLookTime: number = 0;
 
 let currentMemory: TMemory[] = [];
 let currentContext: TContext[] = [];
+let currentBiz: EBiz = null;
 
 export default {
   get action(): TAction {
@@ -64,5 +65,12 @@ export default {
   set context(val: TContext[]) {
     currentContext = val;
   },
+
+  get biz(): EBiz {
+    return currentBiz;
+  },
+  set biz(val: EBiz) {
+    currentBiz = val;
+  }
 
 }

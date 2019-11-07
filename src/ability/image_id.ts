@@ -17,17 +17,17 @@ import { debug } from 'debug';
 
 const debugLog: debug.Debugger = debug("iid");
 
-export function templateJudge(img: TBitmap, template: TPointTemplate, type?: ETemplateJudgeType): TPoint {
+export function templateJudge(img: TBitmap, template: TPointTemplate, startPoint: TPoint = {x: 0, y: 0}, type?: ETemplateJudgeType): TPoint {
   let targetPoint: TPoint = null;
   type = type || template.type || ETemplateJudgeType.FROM_ORIGIN;
 
   const start: Date = new Date();
   switch (type) {
     case ETemplateJudgeType.FROM_ORIGIN:
-      targetPoint = originTemplateJudge(img, template);
+      targetPoint = originTemplateJudge(img, template, startPoint);
       break;
     case ETemplateJudgeType.FROM_CENTER:
-      targetPoint = centerTemplateJudge(img, template);
+      targetPoint = centerTemplateJudge(img, template, startPoint);
       break;
     default:
       break;
@@ -61,7 +61,7 @@ export function compareColor(color1: string, color2: string, fidelity: number = 
   return 1 - ((rDis / 255 + gDis / 255 + bDis / 255) / 3) >= fidelity;
 }
 
-function originTemplateJudge(img: TBitmap, template: TPointTemplate): TPoint {
+function originTemplateJudge(img: TBitmap, template: TPointTemplate, startPoint: TPoint = {x: 0, y: 0}): TPoint {
   let targetPoint: TPoint = null;
   const { width, height } = img;
   let matched: boolean = false;
@@ -69,11 +69,11 @@ function originTemplateJudge(img: TBitmap, template: TPointTemplate): TPoint {
   const firstPointColor: string = template.points[0].color;
 
   // 1. find the left/top origin point
-  for (let i = 0; i < height; i++) {
+  for (let i = startPoint.y; i < height; i++) {
     if (height - i < template.height || true === matched) {
       break;
     }
-    for (let j = 0; j < width; j++) {
+    for (let j = startPoint.x; j < width; j++) {
       if (width - j < template.width || true === matched) {
         break;
       }
@@ -112,7 +112,7 @@ function doOriginAccurateJudge(startPoint: TPoint, img: TBitmap, template: TPoin
   return matched;
 }
 
-function centerTemplateJudge(img: Bitmap, template: TPointTemplate): TPoint {
+function centerTemplateJudge(img: Bitmap, template: TPointTemplate, startPoint: TPoint): TPoint {
   let targetPoint: TPoint = null;
 
   return targetPoint;

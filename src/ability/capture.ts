@@ -9,9 +9,15 @@ import { screen, Bitmap } from "robotjs";
 
 import { TRect, TBitmap } from "fishman";
 
+import { debug } from 'debug';
+
+const debugLog: debug.Debugger = debug("capture");
+
 export function capture(rect: TRect): TBitmap {
+  const start: Date = new Date();
   const bitmap: Bitmap = screen.capture(rect.x, rect.y, rect.w, rect.h);
-  // const pixel: Uint8Array = new Uint8Array(bitmap.image);
+  const end: Date = new Date();
+  debugLog(`capture take time: [${+end - +start}]ms with area: [${rect.w * rect.h}]`);
 
   return {
     width: bitmap.width,

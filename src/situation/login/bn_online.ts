@@ -10,10 +10,10 @@ import { TSituation } from "fishman";
 import { getAction } from 'src/action';
 
 export async function judge(): Promise<boolean> {
-  return true;
+  return false;
 }
 
-export async function getSituation(): Promise<TSituation> {
+export function getSituation(): TSituation {
   return {
     name: 'login/bn_online',
     required: [],

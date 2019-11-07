@@ -15,7 +15,7 @@ export async function executeAction(name: string, templateData: Map<ETemplate, T
     return null;
   }
 
-  await actionData.doAction(name, templateData);
+  await actionData.doAction(templateData);
 }
 
 export function getAction(name: string): TAction {

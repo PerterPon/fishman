@@ -8,6 +8,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
+import chalk from 'chalk';
 
 import { getConfig } from 'src/core/config';
 import { sleep } from 'src/util';
@@ -19,7 +20,7 @@ type TSituationData = {
 }
 
 const config = getConfig();
-const situationPath: string = path.join(config.modelDir, 'situation.json');
+const situationPath: string = path.join(config.modelDir, 'situations', `${config.biz}.json`);
 let situationData: TSituationData = null;
 
 export const situations: Map<string, TSituation> = new Map();
@@ -47,10 +48,11 @@ export function getSituationProbability(name: string): TSituationProbability[] {
 
 export function updateSituationModel(name: string, nextSituation: string): void {
   // const situationData: TSituationData = getSituationModel();
+  debugger;
   let situation = situationData[name];
   // 1. get situation data
   if (undefined === situation) {
-    console.log(`new situation: [${name}]`);
+    console.log(chalk.green(`new situation: [${name}]`));
     situationData[name] = [];
     situation = situationData[name];
   }
@@ -76,7 +78,6 @@ export function updateSituationModel(name: string, nextSituation: string): void 
   situationData[name] = _.sortBy(situation, 'probability').reverse();
 
   // 4. write to file
-  
 }
 
 async function intervalSync(): Promise<void> {

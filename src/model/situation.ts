@@ -13,10 +13,11 @@ import chalk from 'chalk';
 import { getConfig } from 'src/core/config';
 import { sleep } from 'src/util';
 
-import { TSituation, TSituationProbability } from 'fishman';
+import { TSituation, TSituationProbabilityModel, TSituationModel, TPointTemplate, TPoint, TFeatureMap } from 'fishman';
+import { EFeature } from 'src/constants/enums';
 
 type TSituationData = {
-  [name: string]: TSituationProbability[];
+  [name: string]: TSituationModel;
 }
 
 const modelDir = path.resolve(__dirname, '../../../', './src/model');
@@ -27,10 +28,10 @@ let situationData: TSituationData = null;
 export const situations: Map<string, TSituation> = new Map();
 
 export async function init(): Promise<void> {
-  situationData = getSituationModel();
+  situationData = getAllSituationModel();
 }
 
-export function getSituationModel(): TSituationData {
+export function getAllSituationModel(): TSituationData {
   const situationContent: string = fs.readFileSync(situationPath, 'utf-8');
   let situationData: TSituationData;
   try {
@@ -42,43 +43,70 @@ export function getSituationModel(): TSituationData {
   return situationData;
 }
 
-export function getSituationProbability(name: string): TSituationProbability[] {
-  // const situationData: TSituationData = getSituationModel();
-  return situationData[name] || [];
+export function getSituationModel(name: string): TSituationModel {
+  return situationData[name];
 }
 
-export function updateSituationModel(name: string, nextSituation: string): void {
-  // const situationData: TSituationData = getSituationModel();
+export function getSituationProbability(name: string): TSituationProbabilityModel[] {
+  return _.get(situationData, `${name}.probability`) as any || [];
+}
+
+export function getSituationFeatureMap(name: string): TFeatureMap {
+  return _.get(situationData, `${name}.featureMap`) as any || [];
+}
+
+export function updateSituationProbability(name: string, nextSituation: string): void {
   debugger;
-  let situation = situationData[name];
+  let situation: TSituationModel = situationData[name];
   // 1. get situation data
   if (undefined === situation) {
     console.log(chalk.green(`new situation: [${name}]`));
-    situationData[name] = [];
+    situationData[name] = {
+      name: name,
+      probability: [],
+      featureMap: {},
+    };
     situation = situationData[name];
   }
-  let nextSituationData: any = _.find(situation, {name: nextSituation} as any);
+
+  const probability: TSituationProbabilityModel[] = situation.probability;
+  let nextSituationData: any = _.find(situation.probability, {name: nextSituation} as any);
   if (undefined === nextSituationData) {
     nextSituationData = {
       name: nextSituation,
       probability: 0,
       times: 0
     };
-    situation.push(nextSituationData);
+    situation.probability.push(nextSituationData);
   }
 
   nextSituationData.times++;
   // 2. cal probability
-  let totalTimes: number = _.sumBy(situation, 'times');
-  for (let i = 0; i < situation.length; i++) {
-    const item = situation[i];
+  let totalTimes: number = _.sumBy(probability, 'times');
+  for (let i = 0; i < probability.length; i++) {
+    const item = probability[i];
     item.probability = Number((item.times / totalTimes).toFixed(4));
   }
 
   // 3. sort by probability
-  situationData[name] = _.sortBy(situation, 'probability').reverse();
+  situationData[name].probability = _.sortBy(probability, 'probability').reverse();
+}
 
-  // 4. write to file
+export function updateSituationFeatureMap(name: string, featureMap: TFeatureMap): void {
+  let situation: TSituationModel = situationData[name];
+  // 1. get situation data
+  if (undefined === situation) {
+    console.log(chalk.green(`new situation: [${name}]`));
+    situationData[name] = {
+      name: name,
+      probability: [],
+      featureMap: {},
+    };
+    situation = situationData[name];
+  }
+
+  // 2. get feature map
+  situation.featureMap = Object.assign({}, situation.featureMap, featureMap);
 }
 
 async function intervalSync(): Promise<void> {

@@ -10,7 +10,7 @@ import { init as initAbility } from 'src/ability';
 import { init as initModel } from 'src/model';
 import { init as initSituation } from 'src/situation';
 
-import { startWork } from 'src/body/brain';
+import { startWorkWay2 } from 'src/body/brain';
 
 async function init(): Promise<void> {
   await initCore();
@@ -21,7 +21,7 @@ async function init(): Promise<void> {
 
 async function start(): Promise<void> {
   await init();
-  await startWork();
+  await startWorkWay2();
 }
 
 start();
@@ -31,7 +31,7 @@ process.on('uncaughtException', (error) => {
   console.log(`uncaughtException: [${error.message}]`);
   console.log(error.stack);
   console.log('-------------------------------------');
-  process.exit(1);
+  // process.exit(1);
 });
 
 process.on('unhandledRejection', (error: any) => {
@@ -39,5 +39,5 @@ process.on('unhandledRejection', (error: any) => {
   console.log(`unhandledRejection: [${error.message }]`);
   console.log(error.stack);
   console.log('=====================================');
-  process.exit(1);
+  // process.exit(1);
 });

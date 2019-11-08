@@ -13,11 +13,11 @@ const _ = require('lodash');
 // const model = require('./model/template.json');
 const modelString = fs.readFileSync(path.join(__dirname, './model/template.json'), 'utf-8');
 
-const name = 'bn_login_button';
-const startX = 0;
-const startY = 0;
-const endX = 30;
-const endY = 30;
+const name = 'login/bn_open_game_btn';
+const startX = 100;
+const startY = 300;
+const endX = 400;
+const endY = 400;
 const width = endX - startX;
 const height = endY - startY;
 console.time('template');

@@ -15,7 +15,7 @@ const debugLog: debug.Debugger = debug("capture");
 
 export function capture(rect: TRect): TBitmap {
   const start: Date = new Date();
-  const bitmap: Bitmap = screen.capture(rect.x, rect.y, rect.w, rect.h);
+  const bitmap: Bitmap = screen.capture(rect.x / 2, rect.y / 2, rect.w, rect.h);
   const end: Date = new Date();
   debugLog(`capture take time: [${+end - +start}]ms with area: [${rect.w * rect.h}]`);
 

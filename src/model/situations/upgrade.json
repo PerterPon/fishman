@@ -1,9 +1,31 @@
 {
-    "login/bn_offline": [
-        {
-            "name": "login/bn_offline",
-            "probability": 1,
-            "times": 15
+    "login/bn_online": {
+        "name": "login/bn_online",
+        "probability": [
+            {
+                "name": "login/bn_online",
+                "probability": 1,
+                "times": 1
+            }
+        ],
+        "featureMap": {}
+    },
+    "login/bn_offline": {
+        "name": "login/bn_offline",
+        "probability": [
+            {
+                "name": "login/bn_offline",
+                "probability": 1,
+                "times": 64
+            }
+        ],
+        "featureMap": {
+            "login/bn_login_btn": {
+                "x": 200,
+                "y": 600,
+                "w": 300,
+                "h": 100
+            }
         }
-    ]
+    }
 }

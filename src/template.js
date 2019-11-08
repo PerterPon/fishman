@@ -14,10 +14,12 @@ const _ = require('lodash');
 const modelString = fs.readFileSync(path.join(__dirname, './model/template.json'), 'utf-8');
 
 const name = 'bn_login_button';
-const startX = 100;
-const startY = 100;
-const width = 100;
-const height = 100;
+const startX = 0;
+const startY = 0;
+const endX = 30;
+const endY = 30;
+const width = endX - startX;
+const height = endY - startY;
 console.time('template');
 const image = robotjs.screen.capture(startX, startY, width, height);
 const stepX = 6;

@@ -48,9 +48,7 @@ export async function calculateSituation(): Promise<TSituation> {
         break;
       }
     }
-  }
-
-  if (null === situation) {
+  } else {
     console.log(chalk.yellow(`enter full situation scan!`));
     const matchedSName: string = await judgeGloablSituation();
     if (null === matchedSName) {

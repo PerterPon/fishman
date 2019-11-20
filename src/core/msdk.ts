@@ -6,19 +6,30 @@
 */
 
 import { TPoint } from "fishman";
+const ffi = require('ffi');
 
-let deviceHandler: number = 0;
+var libm = ffi.Library('D:\\wow\\fishman\\src\\core\\msdk.dll', {
+  'M_Open': [ 'int', [ 'int' ] ],
+  'M_Close': [ 'int', [ 'int' ] ],
+  'M_KeyPress': [ 'int', [ 'int', 'int', 'int'] ],
+  'M_KeyDown': [ 'int', [ 'int', 'int'] ],
+  'M_KeyUp': [ 'int', [ 'int', 'int'] ],
+  'M_LeftClick': [ 'int', [ 'int', 'int' ] ]
+});
+
+const deviceHandler: number = libm.M_Open(1);
+console.log(`msdk got handler: [${deviceHandler}]`);
 
 export async function init(): Promise<void> {
 
 }
 
 export function moveTo(point: TPoint): void {
-  console.log('move to', point);
+  
 }
 
 export function leftClick(): void {
-  
+  libm.M_LeftClick();
 }
 
 export function rightClick(): void {
@@ -26,5 +37,13 @@ export function rightClick(): void {
 }
 
 export function keyPress(keyCode: number): void {
+  libm.M_KeyPress(deviceHandler, keyCode, 1);
+}
 
+export function keyDown(keyCode: number): void {
+  libm.M_KeyDown(deviceHandler, keyCode);
+}
+
+export function keyUp(keyCode: number): void {
+  libm.M_KeyUp(deviceHandler, keyCode);
 }

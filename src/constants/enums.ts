@@ -20,6 +20,8 @@ export enum EGoal {
 }
 
 export enum ETemplate {
+  PLUGIN_FLAG = 'plugin_flag',
+
   BN_LOGIN_BTN = 'login/bn_login_btn',
   BN_OPEN_GAME_BTN = 'login/bn_open_game_btn',
 

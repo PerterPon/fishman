@@ -15,8 +15,8 @@ import { TPointTemplate, TPoint, THEXPoint, TPixel, TBitmap } from "fishman";
 
 import { debug } from 'debug';
 
-const debugLog: debug.Debugger = debug("iid");
-
+// const debugLog: debug.Debugger = debug("iid");
+const debugLog = console.log as any;
 export function templateJudge(img: TBitmap, template: TPointTemplate, precision: number, type?: ETemplateJudgeType): TPoint {
   let targetPoint: TPoint = null;
   type = type || template.type || ETemplateJudgeType.FROM_ORIGIN;

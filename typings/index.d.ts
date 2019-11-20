@@ -5,6 +5,10 @@
 * Create: Mon Oct 21 2019 12:04:57 GMT+0800 (中国标准时间)
 */
 
+declare module 'ffi' {
+  export function Library(arg1?: any, arg2?: any): any;
+}
+
 declare module 'fishman' {
   import { EAction, ETemplateJudgeType, ETemplate, EFeature } from "src/constants/enums";
   import { Bitmap } from "robotjs";

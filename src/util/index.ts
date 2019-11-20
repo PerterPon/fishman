@@ -46,6 +46,12 @@ export function colorAt(bmpImg: TBitmap, point: TPoint): string {
   return rgb2hex(rgb);
 }
 
+export function pixelAt(bmpImg: TBitmap, point: TPoint): TPixel {
+  const position: number = bmpImg.byteWidth * point.y + bmpImg.bytesPerPixel * point.x;
+  const rgb: TPixel = [bmpImg.image.readUInt8(position + 2), bmpImg.image.readUInt8(position + 1), bmpImg.image.readUInt8(position + 0)];
+  return rgb;
+}
+
 export async function humanDelay(): Promise<void> {
   await randomSleep(300, 800);
 }

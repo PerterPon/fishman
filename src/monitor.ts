@@ -1,14 +1,22 @@
 
+/*
+ * monitor.ts
+ * Author: PerterPon<perterpon@gmail.com>
+ * Create: Sun Nov 24 2019 15:05:49 GMT+0800 (中国标准时间)
+ */
 
+import { EventEmitter } from 'events';
+import * as _ from 'lodash';
+
+import { capture } from "src/ability/capture";
+import { getTemplate } from "src/model/template";
+import { templateJudge } from "src/ability/image_id";
+import { sleep, colorAt, pixelAt } from "src/util";
+import vision from 'src/vision';
+
+import { ETemplate } from "src/constants/enums";
 
 import { TPoint, TBitmap, TPointTemplate, TRect, TPixel } from "fishman";
-import { capture } from "./ability/capture";
-import { getTemplate } from "./model/template";
-import { ETemplate } from "./constants/enums";
-import { templateJudge } from "./ability/image_id";
-import { EventEmitter } from 'events';
-import { sleep, colorAt, pixelAt } from "./util";
-import * as _ from 'lodash';
 
 let flagPoint: TPoint = null;
 let run: boolean = false;
@@ -32,26 +40,29 @@ const rgbValueMap:any = {
 "230": "1111",
 };
 
-
 export let statusValue: {[name: string]: any} = {};
 export const eventBus: EventEmitter = new EventEmitter();
 
 export function init(): void {
+    vision.monitor = eventBus;
     findFlag();
 }
 
 export async function startMonitor(): Promise<void> {
     run = true;
     initStatusValue();
-    Object.assign(statusValue, parsePluginValue());
+    updateStatusValue(statusValue, parsePluginValue());
+    // monitorAngle();
     while (run) {
         const newValue = parsePluginValue();
         if (newValue === null) {
             console.log('could not parse data, retry after 10\'s');
             await sleep(10 * 1000);
+            findFlag(false);
         }
+
         const oldValue = Object.assign({}, statusValue);
-        Object.assign(statusValue, newValue);
+        updateStatusValue(statusValue, newValue);
         detectValueChange(oldValue, statusValue);
         await sleep(100);
     }
@@ -68,6 +79,7 @@ const statusIndexMap = [
     'player_health',
     'player_level',
     'player_dead',
+    'player_swimming',
     'player_x',
     'player_y',
     'target_dead',
@@ -87,6 +99,7 @@ const statusArray: {[name: string]: any} = {
     player_health : 7,
     player_level : 7,
     player_dead : 1,
+    player_swimming: 1,
     player_x : 14,
     player_y : 14,
     target_dead : 1,
@@ -99,13 +112,15 @@ const statusArray: {[name: string]: any} = {
     float_gold : 20
 };
 
-function findFlag(): void {
+function findFlag(exit: boolean = true): void {
     const img: TBitmap = capture();
     const temp: TPointTemplate = getTemplate(ETemplate.PLUGIN_FLAG);
     const point: TPoint = templateJudge(img, temp, 1);
     if (null === point) {
         console.log(`cloud not found flag, exists`);
-        process.exit(1);
+        if (true === exit) {
+            process.exit(1);
+        }
     } else {
         console.log('flag point', point);
         flagPoint = point;
@@ -187,4 +202,37 @@ function initStatusValue(): void {
         float_xp: 0,
         float_gold: 0
     });
+}
+
+function updateStatusValue(oldValue: any, newValue: any) {
+    Object.assign(oldValue, newValue);
+    vision.monitorValue = oldValue;
+}
+
+let latestPosition: TPoint = null;
+async function monitorAngle(): Promise<void> {
+    while (run) {
+        await sleep(300);
+        const { player_x, player_y } = statusValue;
+        const newPoint: TPoint = {
+            x: player_x,
+            y: player_y,
+        };
+        if (null === latestPosition) {
+            latestPosition = {x: player_x, y: player_y};
+            return;
+        }
+
+        const oldPoint: TPoint = latestPosition;
+        const oldAngle: number = statusValue.angle;
+        const newAngle: number = calculateAngle(newPoint, oldPoint);
+        statusValue.angle = newAngle;
+        detectValueChange({angle: oldAngle}, {angle: newAngle});
+    }
+}
+
+function calculateAngle(newPont: TPoint, oldPoint: TPoint): number {
+    return Math.atan2(
+        newPont.y - oldPoint.y, newPont.x - oldPoint.x
+    );
 }

@@ -28,6 +28,7 @@ const keyMap = {
     '2': 31,
     '3': 32,
     '4': 33,
+    '5': 34,
     'a': 4,
     'd': 7,
     'q': 20,
@@ -52,6 +53,7 @@ function registerEvents(): void {
     eventBus.on('float_xp', xpChange);
     eventBus.on('player_x', positionChange);
     eventBus.on('player_y', positionChange);
+    eventBus.on('target_health', targetHealthChange);
 }
 
 async function positionChange(): Promise<void> {
@@ -66,7 +68,7 @@ async function monitorBuffer(code: number, time: number): Promise<void> {
         await sleep(1000);
         const latestTime: number = bufferMap.get(code);
         const now: number = Date.now();
-        if (latestTime !== undefined && now - latestTime < time) {
+        if (latestTime !== undefined && now - latestTime < time || 0 === statusValue.target_exists) {
             continue;
         }
 
@@ -125,6 +127,13 @@ async function playerHealthChange(): Promise<void> {
 }
 
 async function targetHealthChange(): Promise<void> {
+    
+    const latestCastTime: number = bufferMap.get(keyMap['5']) || 0;
+    if (90 > statusValue.target_health && statusValue.target_health > 50 && Date.now() - latestCastTime >= 60 * 1000) {
+        console.log(statusValue.target_health);
+        keyPress(keyMap['5']);
+        bufferMap.set(keyMap['5'], Date.now());
+    }
 }
 
 async function selfSave() {
@@ -184,7 +193,7 @@ async function leaveCombat(): Promise<void> {
     if (cureTimes >= 2) {
         // cast too much magic, take a rest
         notCombatPress(keyMap.x);
-        await sleep(cureTimes * 5 * 1000);
+        await sleep(cureTimes * 10 * 1000);
         notCombatPress(keyMap.x);
     }
 

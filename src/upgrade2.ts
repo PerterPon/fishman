@@ -1,12 +1,17 @@
 
 import { capture } from 'src/ability/capture';
 import { keyPress, keyDown, keyUp } from 'src/ability/keyboard';
+import { keyMap } from 'src/constants/keymap';
 
 import { sleep, colorAt } from 'src/util';
 
 import { TRect, TBitmap, TPointTemplate, TPoint, TPixel } from 'fishman';
 
-import { init, startMonitor, eventBus, statusValue, stopMonitor } from './monitor';
+import { init, startMonitor, eventBus, statusValue, stopMonitor } from 'src/monitor';
+
+import {} from 'src/ability/walk';
+
+import 'src/model/map';
 
 let run = false;
 let targetLocked = false;
@@ -15,31 +20,6 @@ const fence: [TPoint, TPoint] = [{x: 0, y: 0}, {x: 0, y: 0}];
 
 init();
 startMonitor();
-
-const keyMap = {
-    'f1': 58,
-    'f2': 59,
-    'f3': 60,
-    'f4': 61,
-    'f8': 65,
-    'f9': 66,
-    'f10': 67,
-    'f5': 62,
-    '2': 31,
-    '3': 32,
-    '4': 33,
-    '5': 34,
-    'a': 4,
-    'd': 7,
-    'q': 20,
-    'e': 8,
-    's': 22,
-    'w': 26,
-    'x': 27,
-    'tab': 43,
-    'space': 44,
-    'esc': 41
-};
 
 const cycleDoMap: {[name: string]: boolean} = {
 
@@ -112,6 +92,9 @@ async function playerHealthChange(): Promise<void> {
         return;
     }
     if (5 > value) {
+        keyPress(keyMap.esc);
+        keyPress(keyMap['4']);
+        await sleep(1700);
         console.log('jesus');
         jesus();
     }

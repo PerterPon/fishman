@@ -20,6 +20,7 @@ import { TPoint, TBitmap, TPointTemplate, TRect, TPixel } from "fishman";
 
 let flagPoint: TPoint = null;
 let run: boolean = false;
+const pontCount: number = 11;
 
 const rgbValueMap:any = {
 "0": "0000",
@@ -82,6 +83,7 @@ const statusIndexMap = [
     'player_swimming',
     'player_x',
     'player_y',
+    'player_facing',
     'target_dead',
     'target_exists',
     'target_health',
@@ -102,6 +104,7 @@ const statusArray: {[name: string]: any} = {
     player_swimming: 1,
     player_x : 14,
     player_y : 14,
+    player_facing : 14,
     target_dead : 1,
     target_exists : 1,
     target_health : 7,
@@ -131,7 +134,7 @@ function parsePluginValue(): {[name: string]: any} {
     const infoRect: TRect = {
         x: flagPoint.x,
         y: flagPoint.y + 1,
-        w: 9,
+        w: pontCount,
         h: 1
     };
     const infoImg: TBitmap = capture(infoRect);

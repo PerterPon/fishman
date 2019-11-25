@@ -22,3 +22,5 @@ export const TOTAL_VISION: TRect = {
   w: WIN_WIDTH,
   h: WIN_HEIGHT,
 };
+
+export const FULL_FACING: number = 6300;

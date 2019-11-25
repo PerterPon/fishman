@@ -139,4 +139,8 @@ declare module 'fishman' {
     road: TPoint[];
   }
 
+  export interface TMonitorInfo {
+    
+  }
+
 }

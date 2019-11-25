@@ -11,8 +11,6 @@ import { init, startMonitor, eventBus, statusValue, stopMonitor } from 'src/moni
 
 import {} from 'src/ability/walk';
 
-import 'src/model/map';
-
 let run = false;
 let targetLocked = false;
 let totalExp = 0;
@@ -93,12 +91,12 @@ async function playerHealthChange(): Promise<void> {
     }
     if (5 > value) {
         keyPress(keyMap.esc);
-        keyPress(keyMap['4']);
+        keyPress(keyMap['3']);
         await sleep(1700);
         console.log('jesus');
         jesus();
     }
-    if (10 > value) {
+    if (15 > value) {
         console.log(`self save because health down to: [${value}]`);
         await selfSave();
     } else if (30 > value) {
@@ -112,14 +110,21 @@ async function playerHealthChange(): Promise<void> {
 async function targetHealthChange(): Promise<void> {
     
     const latestCastTime: number = bufferMap.get(keyMap['5']) || 0;
-    if (90 > statusValue.target_health && statusValue.target_health > 50 && Date.now() - latestCastTime >= 60 * 1000) {
+    if (90 > statusValue.target_health && statusValue.target_health > 20 && Date.now() - latestCastTime >= 60 * 1000) {
         console.log(statusValue.target_health);
         keyPress(keyMap['5']);
         bufferMap.set(keyMap['5'], Date.now());
+        await sleep(1600);
+        keyPress(keyMap['6']);
+        await sleep(1600);
+        keyPress(keyMap.f1);
+        await sleep(1600);
     }
 }
 
+let selfSavedTime: number = 0;
 async function selfSave() {
+    selfSavedTime = Date.now();
     keyPress(keyMap.esc);
     keyPress(keyMap['4']);
     await sleep(1700);
@@ -178,6 +183,13 @@ async function leaveCombat(): Promise<void> {
         notCombatPress(keyMap.x);
         await sleep(cureTimes * 10 * 1000);
         notCombatPress(keyMap.x);
+    }
+
+    if (selfSavedTime > 0) {
+        notCombatPress(keyMap.x);
+        await sleep(5 * 60 * 1000 - Date.now() - selfSavedTime);
+        notCombatPress(keyMap.x);
+        selfSavedTime = 0;
     }
 
     // find new target

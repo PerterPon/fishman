@@ -9,13 +9,18 @@
 import { ETemplate } from 'src/constants/enums';
 
 import { TPointTemplate } from 'fishman';
+import { TMap } from 'fishman/map';
 
-let mapData: {[name: string]: TPointTemplate} = require('./map.json');
+let mapData: {[name: string]: TMap} = require('./map.json');
 
 export async function init(): Promise<void> {
   mapData = require('./map.json');
 }
 
-export function getMap(mapName: string): TPointTemplate {
+export function getMap(mapName: string): TMap {
   return mapData[mapName];
+}
+
+export async function updateMap(): Promise<void> {
+  
 }

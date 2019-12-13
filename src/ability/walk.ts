@@ -67,6 +67,10 @@ function calculateFacing(targetPoint: TPoint, playerPoint: TPoint): number {
   return finalAngle / 360 * FULL_FACING;
 }
 
+export async function stopWalk(): Promise<void> {
+  running = false;
+}
+
 function moveChange(): void {
   if (false === vision.monitorValue.moving) {
     // 

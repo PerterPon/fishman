@@ -18,29 +18,50 @@ import { FULL_FACING } from 'src/constants';
 
 let running: boolean = false;
 const currentMap: string = '';
-export async function walkTo(point: TPoint): Promise<void> {
-  const { player_x, player_y } = vision.monitorValue;
+export async function runTo(point: TPoint): Promise<void> {
+  const { player_x, player_y, player_facing } = vision.monitorValue;
   const targetFacing: number = calculateFacing(point, {x: player_x, y: player_y});
-
+  await adjustFacing(targetFacing);
   keyDown(keyMap.w);
-
-  while (true) {
-    await sleep(200);
+  while (0 === vision.monitorValue.combat) {
+    await sleep(50);
     const { player_x, player_y } = vision.monitorValue;
-    
+    if (Math.abs(player_x - point.x) <= 50 && Math.abs(player_y - point.y)) {
+      break;
+    }
   }
+
+  console.log('run to end');
+  keyUp(keyMap.w);
+  keyUp(keyMap.w);
 }
 
-function calculateFacing(targetPoint: TPoint, nowPoint: TPoint): number {
-  const cycleNumber = Math.atan2(nowPoint.y - targetPoint.y, nowPoint.x - targetPoint.x);
+async function adjustFacing(targetFacing: number): Promise<void> {
+  return new Promise((resolve) => {
+    function listenFacing() {
+      console.log(vision.monitorValue.player_facing);
+      if (Math.abs(targetFacing - vision.monitorValue.player_facing) <= 50) {
+        keyUp(keyMap.d);
+        keyUp(keyMap.d);
+        vision.monitor.removeListener('player_facing', listenFacing);
+        resolve();
+      }
+    }
+    keyDown(keyMap.d);
+    vision.monitor.on('player_facing', listenFacing);
+  });
+}
+
+function calculateFacing(targetPoint: TPoint, playerPoint: TPoint): number {
+  const cycleNumber = Math.atan2(targetPoint.y - playerPoint.y, targetPoint.x - playerPoint.x) * 180 / Math.PI;
   let finalAngle = 0;
   if (0 > cycleNumber && -90 < cycleNumber) {
     finalAngle = 360 - (cycleNumber + 90);
-  } else if (-90 > cycleNumber && -180 < cycleNumber) {
+  } else if (-90 > cycleNumber && -180 <= cycleNumber) {
     finalAngle = -1 * (cycleNumber + 90);
   } else if (0 <= cycleNumber && 90 > cycleNumber) {
     finalAngle = 360 - (cycleNumber + 90);
-  } else if (90 < cycleNumber && 180 > cycleNumber) {
+  } else if (90 < cycleNumber && 180 >= cycleNumber) {
     finalAngle = 180 - (cycleNumber - 90);
   }
   return finalAngle / 360 * FULL_FACING;

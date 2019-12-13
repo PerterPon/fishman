@@ -9,7 +9,7 @@ import { TRect, TBitmap, TPointTemplate, TPoint, TPixel } from 'fishman';
 
 import { init, startMonitor, eventBus, statusValue, stopMonitor } from 'src/monitor';
 
-import {} from 'src/ability/walk';
+import { runTo } from 'src/ability/walk';
 
 let run = false;
 let targetLocked = false;
@@ -31,7 +31,11 @@ function registerEvents(): void {
     eventBus.on('float_xp', xpChange);
     eventBus.on('player_x', positionChange);
     eventBus.on('player_y', positionChange);
-    eventBus.on('target_health', targetHealthChange);
+    eventBus.on('player_dead', () => {
+        console.log(new Date);
+        process.exit();
+    });
+    // eventBus.on('target_health', targetHealthChange);
 }
 
 async function positionChange(): Promise<void> {
@@ -108,9 +112,8 @@ async function playerHealthChange(): Promise<void> {
 }
 
 async function targetHealthChange(): Promise<void> {
-    
     const latestCastTime: number = bufferMap.get(keyMap['5']) || 0;
-    if (90 > statusValue.target_health && statusValue.target_health > 20 && Date.now() - latestCastTime >= 60 * 1000) {
+    if (100 > statusValue.target_health && statusValue.target_health > 20 && Date.now() - latestCastTime >= 60 * 1000) {
         console.log(statusValue.target_health);
         keyPress(keyMap['5']);
         bufferMap.set(keyMap['5'], Date.now());
@@ -153,6 +156,28 @@ async function enterCombat(): Promise<void> {
     keyPress(keyMap.s);
 
     cycleDoUntilLeaveCombat([keyMap.f4], 500);
+    // keyPress(keyMap.f1);
+    // await sleep(2000);
+    // keyPress(keyMap['5']);
+    // await sleep(100);
+    // keyPress(keyMap['6']);
+    // await sleep(2000);
+    // keyPress(keyMap.f1);
+
+    keyPress(keyMap.f1);
+    await sleep(1600);
+    while(run && 1 === statusValue.combat) {
+        if (Date.now() - (bufferMap.get(keyMap.f1) || 0) > 60 * 1000) {
+            keyPress(keyMap['5']);
+            bufferMap.set(keyMap.f1, Date.now());
+            await sleep(100);
+        }
+
+        keyPress(keyMap['6']);
+        await sleep(2000);
+        keyPress(keyMap.f1);
+        await sleep(10 * 1000 + 200);
+    }
 }
 
 let looking4Target = false;
@@ -178,12 +203,13 @@ async function leaveCombat(): Promise<void> {
         await sleep(4000);
     }
 
-    if (cureTimes >= 2) {
+    // if (cureTimes >= 2) {
         // cast too much magic, take a rest
         notCombatPress(keyMap.x);
-        await sleep(cureTimes * 10 * 1000);
+        await sleep(10 * 1000);
+        await sleep(cureTimes * 15 * 1000);
         notCombatPress(keyMap.x);
-    }
+    // }
 
     if (selfSavedTime > 0) {
         notCombatPress(keyMap.x);
@@ -295,6 +321,27 @@ async function turnAround(): Promise<void> {
     // await sleep(4000);
     // keyUp(keyMap.w);
     await sleep(5000);
+    const randomVal = Math.random();
+    if (randomVal > 0.7) {
+        console.log('run to 1');
+        await runTo({
+            x: 3540,
+            y: 6340
+        });
+    } else if (randomVal > 0.4) {
+        console.log('run to 2');
+        await runTo({
+            x: 3980,
+            y: 6690
+        });
+    } else {
+        console.log('run to 3');
+        await runTo({
+            x: 3210,
+            y: 5850
+        });
+    }
+    
 }
 
 function notCombatKeyDown(code: number): void {
@@ -342,13 +389,15 @@ async function cycleDoUntilLeaveCombat(code: number[], time: number): Promise<vo
 
 async function start() {
     run = true;
-    monitorBuffer(keyMap.f1, 30 * 1000);
-    await sleep(1600);
+    // monitorBuffer(keyMap.f1, 30 * 1000);
+    // await sleep(1600);
 
     monitorBuffer(keyMap.f2, 4 * 60 * 1000);
-
-    combatChange();
     startMonitor();
+
+    // turnAround();
+    combatChange();
+    
 }
 
 function stop() {

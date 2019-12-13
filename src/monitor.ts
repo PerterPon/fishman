@@ -65,7 +65,7 @@ export async function startMonitor(): Promise<void> {
         const oldValue = Object.assign({}, statusValue);
         updateStatusValue(statusValue, newValue);
         detectValueChange(oldValue, statusValue);
-        await sleep(100);
+        await sleep(80);
     }
 }
 
@@ -152,7 +152,9 @@ function parseValueFromBinaryArray(binaryArray: string) {
     for (let i = 0; i < statusIndexMap.length; i++) {
         const keyName: string = statusIndexMap[i];
         const keyLength: number = statusArray[keyName];
+        
         const valueBinary: string = binaryArray.substr(curPos, keyLength);
+        
         const value: number = parseInt(valueBinary, 2);
         statusValue[keyName] = value;
         curPos += keyLength;
@@ -212,30 +214,3 @@ function updateStatusValue(oldValue: any, newValue: any) {
     vision.monitorValue = oldValue;
 }
 
-let latestPosition: TPoint = null;
-async function monitorAngle(): Promise<void> {
-    while (run) {
-        await sleep(300);
-        const { player_x, player_y } = statusValue;
-        const newPoint: TPoint = {
-            x: player_x,
-            y: player_y,
-        };
-        if (null === latestPosition) {
-            latestPosition = {x: player_x, y: player_y};
-            return;
-        }
-
-        const oldPoint: TPoint = latestPosition;
-        const oldAngle: number = statusValue.angle;
-        const newAngle: number = calculateAngle(newPoint, oldPoint);
-        statusValue.angle = newAngle;
-        detectValueChange({angle: oldAngle}, {angle: newAngle});
-    }
-}
-
-function calculateAngle(newPont: TPoint, oldPoint: TPoint): number {
-    return Math.atan2(
-        newPont.y - oldPoint.y, newPont.x - oldPoint.x
-    );
-}

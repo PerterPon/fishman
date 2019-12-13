@@ -133,10 +133,4 @@ declare module 'fishman' {
     image: Buffer;
   }
 
-  export interface TMap {
-    obstacle: TPoint[];
-    water: TPoint[];
-    road: TPoint[];
-  }
-
 }

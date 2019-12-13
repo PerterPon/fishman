@@ -10,7 +10,7 @@ declare module 'ffi' {
 }
 
 declare module 'fishman' {
-  import { EAction, ETemplateJudgeType, ETemplate, EFeature } from "src/constants/enums";
+  import { EAction, ETemplateJudgeType, ETemplate, EFeature, EChannelEvent } from "src/constants/enums";
   import { Bitmap } from "robotjs";
 
   export interface TPoint {
@@ -131,6 +131,11 @@ declare module 'fishman' {
   export interface TBitmap extends Bitmap {
     pixel: Uint8Array;
     image: Buffer;
+  }
+
+  export interface TMainChannelMessage {
+    event: EChannelEvent;
+    data: unknown;
   }
 
 }

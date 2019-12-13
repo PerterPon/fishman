@@ -46,3 +46,9 @@ export enum EBiz {
   FISH = 'fish',
   UPGRADE = 'upgrade',
 }
+
+export enum EChannelEvent {
+  Status = 'status',
+  Keyboard = 'keyboard',
+  mouse = 'mouse',
+}

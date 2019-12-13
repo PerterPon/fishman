@@ -22,7 +22,7 @@ init();
 startMonitor();
 
 const cycleDoMap: {[name: string]: boolean} = {
-
+    
 };
 
 function registerEvents(): void {

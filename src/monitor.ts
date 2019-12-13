@@ -40,7 +40,23 @@ const rgbValueMap:any = {
 "230": "1111",
 };
 
-export let statusValue: {[name: string]: any} = {};
+export const allStatus: {[name: string]: any} = {}
+
+export const statusValue = new Proxy(allStatus, {
+    get: (target, key, receiver) => {
+        return Reflect.get(target, key, receiver);
+    },
+    set: (target, key: string, value, receiver): boolean => {
+        // got new value
+        const oldValue = Reflect.get(target, key, receiver);
+        if (value !== Reflect.get(target, key, receiver)) {
+            eventBus.emit(key, value, oldValue);
+            eventBus.emit('all', key, value, oldValue);
+        }
+        return Reflect.set(target, key, value, receiver);
+    }
+});
+
 export const eventBus: EventEmitter = new EventEmitter();
 
 export function init(): void {
@@ -158,11 +174,13 @@ function parseValueFromBinaryArray(binaryArray: string) {
 }
 
 function detectValueChange(oldValue: {[name: string]: any}, newValue: {[name: string]: any}): void {
+    return;
     for(let key in newValue) {
         const nValue = _.get(newValue, key);
         const oValue = _.get(oldValue, key);
         if(nValue !== oValue) {
             eventBus.emit(key, nValue, oValue);
+            eventBus.emit('all', key, nValue, oValue);
         }
     }
 }

@@ -52,7 +52,7 @@ function run() {
     const children = childProcess.exec(`NODE_PATH=${buildFolder} DEBUG=* node ${buildFolder}/src/index.js`);
     children.stdout.pipe(process.stdout);
   } else if ('win32' === platform) {
-    const children = childProcess.exec(`set NODE_PATH=${buildFolder}&&node ${buildFolder}/src/upgrade2.js`);
+    const children = childProcess.exec(`set NODE_PATH=${buildFolder}&&node --experimental-worker ${buildFolder}/src/upgrade2.js`);
     children.stdout.pipe(process.stdout);
     children.stderr.pipe(process.stderr);
   }

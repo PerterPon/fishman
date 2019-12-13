@@ -1,13 +1,13 @@
 {
 	"name": "fishman",
 	"devDependencies": {
+		"@types/debug": "^4.1.5",
+		"@types/fs-extra": "*",
 		"@types/js-yaml": "*",
 		"@types/lodash": "*",
 		"@types/mocha": "*",
-		"@types/node": "*",
+		"@types/node": "^10.17.9",
 		"@types/promise": "*",
-		"@types/fs-extra": "*",
-		"@types/debug": "^4.1.5",
 		"@types/yaml": "^1.2.0",
 		"istanbul": "^0.4.5",
 		"mocha": "5.2.0"

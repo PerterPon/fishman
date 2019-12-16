@@ -1,38 +1,52 @@
 
 
 
-import { startMonitor, eventBus, statusValue } from 'src/monitor';
+import { init, startMonitor, eventBus, statusValue } from 'src/monitor';
 import { sleep } from 'src/util';
-import { TPoint } from 'fishman';
+import { TRoadPoint } from 'fishman/map';
 
 async function start(): Promise<void> {
+  init();
   startMonitor();
+  await sleep(1000);
   record();
 }
 
-const roads: TPoint[] = [];
+start();
+
+const roads: TRoadPoint[] = [];
 
 async function record(): Promise<void> {
 
-  let latestPoint: TPoint = {
+  let latestPoint: TRoadPoint = {
     x: statusValue.player_x,
-    y: statusValue.player_y
+    y: statusValue.player_y,
+    facing: statusValue.player_facing
   };
   roads.push(latestPoint);
   while (true) {
-    await sleep(5000);
-    if (Math.abs(latestPoint.x - statusValue.player_x) < 200 && latestPoint.y - statusValue.player_y < 200) {
-      continue;
+    await sleep(1000);
+    if (statusValue.player_facing !== latestPoint.facing) {
+      latestPoint = {
+        x: statusValue.player_x,
+        y: statusValue.player_y,
+        facing: statusValue.player_facing
+      }
+      roads.push(latestPoint);
+      console.log(JSON.stringify(roads));
+    } else {
+      if (Math.abs(latestPoint.x - statusValue.player_x) < 100 && latestPoint.y - statusValue.player_y < 100) {
+        continue;
+      }
+      roads.push(latestPoint);
+      console.log(JSON.stringify(roads));
     }
-    latestPoint = {
-      x: latestPoint.x,
-      y: latestPoint.y
-    }
-    roads.push(latestPoint);
+    
+    
   }
 
 }
 
-process.on('exit', () => {
+process.on('SIGKILL', () => {
   console.log(JSON.stringify(roads));
 });

@@ -1,6 +1,6 @@
 const pf = require('pathfinding');
 
-const grid = new pf.Grid(10000, 10000);
+const grid = new pf.Grid(1000, 1000);
 
 grid.setWalkableAt(500, 500, false);
 grid.setWalkableAt(540, 540, false);

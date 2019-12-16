@@ -78,7 +78,7 @@ export function templateBtnClick(templateMap: TFeatureMap, template: ETemplate):
     x: templateRect.x + Math.floor(templateRect.w / 2),
     y: templateRect.y + Math.floor(templateRect.h / 2),
   };
-  mouse.moveTo(centerPoint.x, centerPoint.y);
+  mouse.moveTo(centerPoint);
   humanDelay();
   mouse.leftClick();
   humanDelay();

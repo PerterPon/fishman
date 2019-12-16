@@ -22,7 +22,7 @@ async function compileTS() {
   console.log('compiling ts ...');
   rimraf.sync(path.join(__dirname, 'node_modules/win32-def/dist/lib/ffi.model.d.ts'));
   return new Promise((resolve, reject) => {
-    childProcess.exec(tsc, (error, cpstdout, cpstderr) => {
+    const cs = childProcess.exec(tsc, (error, cpstdout, cpstderr) => {
       if (error) {
         console.log('compile ts with error');
         console.log(error.message);
@@ -33,7 +33,9 @@ async function compileTS() {
       console.log('compile ts success!');
       console.log(cpstdout);
       resolve();
-    });  
+    });
+    cs.stdout.pipe(process.stdout);
+    cs.stderr.pipe(process.stderr);
   });
 
 }
@@ -53,6 +55,8 @@ function run() {
     children.stdout.pipe(process.stdout);
   } else if ('win32' === platform) {
     const children = childProcess.exec(`set NODE_PATH=${buildFolder}&&node ${buildFolder}/src/scripts/upgrade/index.js`);
+    // const children = childProcess.exec(`set NODE_PATH=${buildFolder}&&node ${buildFolder}/src/upgrade2.js`);
+
     children.stdout.pipe(process.stdout);
     children.stderr.pipe(process.stderr);
   }

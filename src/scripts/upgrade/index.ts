@@ -5,34 +5,43 @@
  * Create: Fri Dec 13 2019 15:48:05 GMT+0800 (中国标准时间)
  */
 
-import { fork, ChildProcess } from 'child_process';
+import { fork, exec, ChildProcess } from 'child_process';
 import * as path from 'path';
-import './main';
 
 let mainProcess: ChildProcess;
 
 function start() {
   const main: string = path.join(__dirname, 'main.js');
-  mainProcess = fork(main);
+  mainProcess = exec(`node ${main}`);
   mainProcess.stderr.pipe(process.stderr);
   mainProcess.stdout.pipe(process.stdout);
 }
 
 function stop() {
-  mainProcess.kill();
+  if (null === mainProcess) {
+    return;
+  }
+  exec('taskkill /pid ' + mainProcess.pid + ' /T /F')
   mainProcess = null;
 }
 
 let recordProcess: ChildProcess;
 function startRecord() {
   const record: string = path.join(__dirname, 'record.js');
-  recordProcess = fork(record);
+  recordProcess = exec(`node ${record}`);
   recordProcess.stderr.pipe(process.stderr);
   recordProcess.stdout.pipe(process.stdout);
 }
 
 function stopRecord() {
-  recordProcess.kill();
+  if (null === recordProcess) {
+    return;
+  }
+  const pid = recordProcess.pid;
+  setTimeout(() => {
+    exec('taskkill /pid ' + pid + ' /T /F')  
+  }, 1000);
+
   recordProcess = null;
 }
 
@@ -57,7 +66,7 @@ ioHook.on('keydown', (event:any) => {
     startRecord();
   } else if (67 === event.keycode) {
     console.log('stop record');
-    stop();
+    stopRecord();
   }
 });
 

@@ -7,20 +7,35 @@
 
 
 import { ETemplate } from 'src/constants/enums';
+import * as _ from 'lodash';
+import * as fs from 'fs';
+import * as path from 'path';
 
-import { TPointTemplate } from 'fishman';
+import { TPointTemplate, TPoint } from 'fishman';
 import { TMap } from 'fishman/map';
 
 let mapData: {[name: string]: TMap} = require('./map.json');
 
 export async function init(): Promise<void> {
-  mapData = require('./map.json');
+  // mapData = require('./map.json');
+  const mapDataString: string = fs.readFileSync(path.join(__dirname, 'map.json'), 'utf-8');
+  mapData = JSON.parse(mapDataString);
 }
 
 export function getMap(mapName: string): TMap {
   return mapData[mapName];
 }
 
-export async function updateMap(): Promise<void> {
-  
+export async function updateMap(name: string, point: TPoint): Promise<void> {
+  const map: TMap = mapData[name];
+  if (undefined === map) {
+    throw new Error(`map: [${name}] did not exists!`);
+  }
+
+  const exists: TPoint = _.find(map.area.obstacle, point);
+  if (undefined === exists) {
+    map.area.obstacle.push(point);
+  }
+
+  fs.writeFileSync(path.join(__dirname, 'map.json'), JSON.stringify(mapData, '' as any, 4));
 }

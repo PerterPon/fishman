@@ -24,4 +24,8 @@ declare module "fishman/map" {
     monster: TMapMonster;
     nps: TMapNpc;
   }
+
+  export interface TRoadPoint extends TPoint {
+    facing: number;
+  }
 }

@@ -65,7 +65,8 @@ export async function startMonitor(): Promise<void> {
         const oldValue = Object.assign({}, statusValue);
         updateStatusValue(statusValue, newValue);
         detectValueChange(oldValue, statusValue);
-        await sleep(80);
+        await sleep(5);
+        // console.log(statusValue);
     }
 }
 

@@ -10,7 +10,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
 
-import { TSituation, TMemory } from 'fishman';
+import { TSituation, TMemory, TPoint, TSituationModel, TFeatureMap, TFeature, TFeatureMemory, TFeatureMemories } from 'fishman';
+import { EFeature } from 'src/constants/enums';
 
 let allSituations: string[] = [];
 let situationMap: Map<string, string[]> = new Map();
@@ -38,19 +39,88 @@ export async function init(): Promise<void> {
   console.log('init situation success ...');
 }
 
-export async function judgeSituation(name: string, memory: TMemory[]): Promise<boolean> {
+export function quickSituationJudge(name: string, memory: TMemory[]): boolean {
+  let situation;
+  try {
+    situation = require(`./${name}`);
+  } catch (e) {
+    return null;
+  }
+
+  if (undefined === situation) {
+    console.log(chalk.yellow(`no situation found by name: [${name}]`));
+    return false;
+  }
+
+  // TODO: multi memory support
+  const latestMemory: TMemory = memory[memory.length - 1];
+  const features: TFeatureMemories = latestMemory.features;
+  if (undefined === features) {
+    console.log(chalk.yellow(`trying to quick judge situation: [${name}], but with no feature memory!`));
+    return false;
+  }
+
+  return null === situation.judge(features);
+}
+
+export function fullSituationJudge(name: string, memory: TMemory[]): TFeatureMap {
   debugger;
+  let situation;
+  try {
+    situation = require(`./${name}`);
+  } catch (e) {
+    return null;
+  }
+
+  if (undefined === situation) {
+    console.log(chalk.yellow(`no situation found by name: [${name}]`));
+    return {};
+  }
+
+  if (false === _.isFunction(situation.judge)) {
+    return null;
+  }
+
+  // TODO: multi memory support
+  const latestMemory: TMemory = memory[memory.length - 1];
+
+  // global judge, default get the first img of memory
+  const features: TFeatureMemories = {
+    global: {
+      rect: latestMemory.rects[0],
+      picture: latestMemory.pictures[0]
+    }
+  };
+
+  return situation.judge(features);
+}
+
+// export async function judgeSituationWay2(name: string, memory: TMemory[], situationModel: TSituationModel): TFeatureMap {
+//   const situation = require(`./${name}`);
+//   if (undefined === situation) {
+//     console.log(chalk.yellow(`no situation found by name: [${name}]`));
+//     return {};
+//   }
+
+//   if (true === _.isFunction(situation.judge)) {
+//     return await situation.judge(memory);
+//   }
+
+//   return {};
+// }
+
+export async function judgeSituation(name: string, memory: TMemory[]): Promise<{[name: string]: TPoint}> {
   const situationData = require(`./${name}`);
   if (undefined === situationData) {
     console.log(chalk.yellow(`no situation found by name: [${name}]`));
-    return false;
+    return {};
   }
 
   if (true === _.isFunction(situationData.judge)) {
     return await situationData.judge(memory);
   }
 
-  return false;
+  return {};
 }
 
 export function getSituation(name: string): TSituation {

@@ -5,13 +5,22 @@
 * Create: Mon Oct 21 2019 12:04:57 GMT+0800 (中国标准时间)
 */
 
+declare module 'ffi' {
+  export function Library(arg1?: any, arg2?: any): any;
+}
+
 declare module 'fishman' {
-  import { EAction, ETemplateJudgeType, ETemplate } from "src/constants/enums";
+  import { EAction, ETemplateJudgeType, ETemplate, EFeature } from "src/constants/enums";
   import { Bitmap } from "robotjs";
 
   export interface TPoint {
     x: number;
     y: number;
+  }
+
+  export interface TSize {
+    w: number;
+    h: number;
   }
 
   export type TPixel = [number, number, number];
@@ -53,23 +62,34 @@ declare module 'fishman' {
   }
 
   export interface TFeature {
-    images: TPicture[];
-    texts: TText[];
+    size: TSize;
   }
 
   export interface TSituation {
     name: string;
-    required: TFeature[];
-    optional?: TFeature[];
+    required: EFeature[];
+    optional?: EFeature[];
     action: TAction;
-    nextLookTime?: number;
-    nextView?: TRect;
+    delay?: number;
+    // views: TRect[];
+    // nextLookTime?: number;
+    // nextView?: TRect;
   }
 
-  export interface TSituationProbability {
-    name: string, 
-    probability: number, 
-    times: number
+  export interface TSituationProbabilityModel {
+    name: string;
+    probability: number;
+    times: number;
+  }
+
+  export interface TFeatureMap {
+    [name: string]: TRect;
+  }
+
+  export interface TSituationModel {
+    name: string;
+    featureMap?: TFeatureMap;
+    probability?: TSituationProbabilityModel[];
   }
 
   export interface TAction {
@@ -82,8 +102,18 @@ declare module 'fishman' {
     targetRectTemps?: ETemplate[];
   }
 
+  export interface TFeatureMemories {
+    [name: string]: TFeatureMemory;
+  }
+
   export interface TMemory {
     time: number;
+    rects: TRect[];
+    pictures: TBitmap[];
+    features?: TFeatureMemories;
+  }
+
+  export interface TFeatureMemory {
     rect: TRect;
     picture: TBitmap;
   }

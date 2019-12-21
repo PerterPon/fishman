@@ -18,7 +18,11 @@ export const WIN_HEIGHT: number = 960;
 
 export const TOTAL_VISION: TRect = {
   x: 0,
-  y: WIN_TITLE_HEIGHT,
+  y: 0,
   w: WIN_WIDTH,
-  h: WIN_TITLE_HEIGHT + WIN_HEIGHT,
+  h: WIN_HEIGHT,
 };
+
+export const FULL_FACING: number = 6282;
+
+export const FACING_PER_MS: number = 3.4;

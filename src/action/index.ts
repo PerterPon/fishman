@@ -6,9 +6,9 @@
 */
 
 import { EAction, ETemplate } from "src/constants/enums";
-import { TAction, TPoint } from "fishman";
+import { TAction, TPoint, TFeatureMap } from "fishman";
 
-export async function executeAction(name: string, templateData: Map<ETemplate, TPoint>): Promise<void> {
+export async function executeAction(name: string, templateData: TFeatureMap): Promise<void> {
   const actionData = require(`./${name}`);
   if (undefined === actionData) {
     console.log(`no action found by name: [${name}]`);

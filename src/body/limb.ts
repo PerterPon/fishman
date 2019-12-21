@@ -9,10 +9,14 @@ import { ETemplate } from 'src/constants/enums';
 
 import { executeAction } from 'src/action';
 
-import { TAction, TPoint } from 'fishman';
+import { TSituation, TFeatureMap } from 'fishman';
+import { getSituationFeatureMap } from 'src/model/situation';
 
-export async function doAction(action: TAction, templateData: Map<ETemplate, TPoint>): Promise<void> {
+export async function doAction(situation: TSituation): Promise<void> {
 
-  executeAction(action.name, templateData);
+  const actionName: string = situation.action.name;
+  const featureMap: TFeatureMap = getSituationFeatureMap(situation.name);
+
+  executeAction(actionName, featureMap);
 
 }

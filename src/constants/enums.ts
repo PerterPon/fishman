@@ -20,8 +20,13 @@ export enum EGoal {
 }
 
 export enum ETemplate {
-  BN_LOGIN_BUTTON = 'bn_login_button',
-  GAME_LOGIN_BUTTON = 'game_login_button'
+  PLUGIN_FLAG = 'plugin_flag',
+
+  BN_LOGIN_BTN = 'login/bn_login_btn',
+  BN_OPEN_GAME_BTN = 'login/bn_open_game_btn',
+
+  BATTLING = 'battling',
+  OUT_BATTLE = 'out_battle'
 }
 
 export enum ETemplateJudgeType {
@@ -31,6 +36,10 @@ export enum ETemplateJudgeType {
 
 export enum EFeature {
   BN_LOGIN_BTN = 'login/bn_login_btn',
+  BN_OPEN_GAME_BTN = 'login/bn_open_game_btn',
+
+  ROLE_BATTLING = 'role/battling',
+  ROLE_OUT_BATTLE = 'role/out_battle',
 }
 
 export enum EBiz {

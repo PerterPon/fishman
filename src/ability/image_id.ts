@@ -15,19 +15,19 @@ import { TPointTemplate, TPoint, THEXPoint, TPixel, TBitmap } from "fishman";
 
 import { debug } from 'debug';
 
-const debugLog: debug.Debugger = debug("iid");
-
-export function templateJudge(img: TBitmap, template: TPointTemplate, startPoint: TPoint = {x: 0, y: 0}, type?: ETemplateJudgeType): TPoint {
+// const debugLog: debug.Debugger = debug("iid");
+const debugLog = console.log as any;
+export function templateJudge(img: TBitmap, template: TPointTemplate, precision: number, type?: ETemplateJudgeType): TPoint {
   let targetPoint: TPoint = null;
   type = type || template.type || ETemplateJudgeType.FROM_ORIGIN;
 
   const start: Date = new Date();
   switch (type) {
     case ETemplateJudgeType.FROM_ORIGIN:
-      targetPoint = originTemplateJudge(img, template, startPoint);
+      targetPoint = originTemplateJudge(img, template, precision);
       break;
     case ETemplateJudgeType.FROM_CENTER:
-      targetPoint = centerTemplateJudge(img, template, startPoint);
+      targetPoint = centerTemplateJudge(img, template, precision);
       break;
     default:
       break;
@@ -49,7 +49,7 @@ export function templateJudge(img: TBitmap, template: TPointTemplate, startPoint
  */
 export function compareColor(color1: string, color2: string, fidelity: number = 1): boolean {
   if (1 === fidelity) {
-    return color1.toLowerCase() === color2.toLowerCase();
+    return color1 === color2;
   }
   const color1Pixel: TPixel = hex2rgb(color1);
   const color2Pixel: TPixel = hex2rgb(color2);
@@ -61,41 +61,47 @@ export function compareColor(color1: string, color2: string, fidelity: number = 
   return 1 - ((rDis / 255 + gDis / 255 + bDis / 255) / 3) >= fidelity;
 }
 
-function originTemplateJudge(img: TBitmap, template: TPointTemplate, startPoint: TPoint = {x: 0, y: 0}): TPoint {
+function originTemplateJudge(img: TBitmap, template: TPointTemplate, precision: number): TPoint {
   let targetPoint: TPoint = null;
   const { width, height } = img;
   let matched: boolean = false;
 
   const firstPointColor: string = template.points[0].color;
 
+  debugger;
   // 1. find the left/top origin point
-  for (let i = startPoint.y; i < height; i++) {
+  for (let i = 0; i < height; i++) {
     if (height - i < template.height || true === matched) {
       break;
     }
-    for (let j = startPoint.x; j < width; j++) {
+    for (let j = 0; j < width; j++) {
       if (width - j < template.width || true === matched) {
         break;
       }
       const color: string = colorAt(img, { x: j, y: i });
-      const now: Date = new Date();
       // 2. begin match the template
       if (true === compareColor(color, firstPointColor)) {
         targetPoint = {
           x: j,
           y: i,
         };
-        matched = doOriginAccurateJudge(targetPoint, img, template);
+        matched = doOriginAccurateJudge(targetPoint, img, template, precision);
       }
     }
   }
   return targetPoint;
 }
 
-function doOriginAccurateJudge(startPoint: TPoint, img: TBitmap, template: TPointTemplate): boolean {
+function doOriginAccurateJudge(startPoint: TPoint, img: TBitmap, template: TPointTemplate, precision: number): boolean {
   let matched: boolean = true;
   const templatePoints: THEXPoint[] = template.points;
-  for (let i = 0; i < templatePoints.length; i++) {
+  if (precision > 100) {
+    precision = 100;
+  }
+
+  const pointCount: number = Math.floor(templatePoints.length * (precision / 100));
+  const step: number = Math.floor(templatePoints.length / pointCount);
+  for (let i = 0; i < templatePoints.length; i+=step) {
     const point: THEXPoint = templatePoints[i];
     const templateColor: string = point.color;
     const targetPoint: TPoint = {
@@ -112,7 +118,7 @@ function doOriginAccurateJudge(startPoint: TPoint, img: TBitmap, template: TPoin
   return matched;
 }
 
-function centerTemplateJudge(img: Bitmap, template: TPointTemplate, startPoint: TPoint): TPoint {
+function centerTemplateJudge(img: Bitmap, template: TPointTemplate, precision: number): TPoint {
   let targetPoint: TPoint = null;
 
   return targetPoint;

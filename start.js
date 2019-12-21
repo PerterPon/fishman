@@ -20,11 +20,12 @@ function deleteBuild() {
 
 async function compileTS() {
   console.log('compiling ts ...');
+  rimraf.sync(path.join(__dirname, 'node_modules/win32-def/dist/lib/ffi.model.d.ts'));
   return new Promise((resolve, reject) => {
-    childProcess.exec(tsc, (error, cpstdout, cpstderr) => {
+    const cs = childProcess.exec(tsc, (error, cpstdout, cpstderr) => {
       if (error) {
         console.log('compile ts with error');
-        console.log(error);
+        console.log(error.message);
         console.log(cpstderr);
         reject();
         return;
@@ -32,7 +33,9 @@ async function compileTS() {
       console.log('compile ts success!');
       console.log(cpstdout);
       resolve();
-    });  
+    });
+    cs.stdout.pipe(process.stdout);
+    cs.stderr.pipe(process.stderr);
   });
 
 }
@@ -42,16 +45,21 @@ async function moveEtc() {
   fs.copySync(path.join(__dirname, 'etc'), path.join(buildFolder, 'etc'));
   fs.copySync(path.join(__dirname, 'src/model/situations'), path.join(buildFolder, 'src/model/situations'));
   fs.copySync(path.join(__dirname, 'src/model/template.json'), path.join(buildFolder, 'src/model/template.json'));
+  fs.copySync(path.join(__dirname, 'src/model/map.json'), path.join(buildFolder, 'src/model/map.json'));
 }
 
 function run() {
+  console.log('start run');
   const platform = os.platform();
   if ('darwin' === platform) {
     const children = childProcess.exec(`NODE_PATH=${buildFolder} DEBUG=* node ${buildFolder}/src/index.js`);
     children.stdout.pipe(process.stdout);
   } else if ('win32' === platform) {
-    const children = childProcess.exec(`set NODE_PATH=${buildFolder}&&node ${buildFolder}/src/index.js`);
+    const children = childProcess.exec(`set NODE_PATH=${buildFolder}&&node ${buildFolder}/src/scripts/upgrade/index.js`);
+    // const children = childProcess.exec(`set NODE_PATH=${buildFolder}&&node ${buildFolder}/src/upgrade2.js`);
+
     children.stdout.pipe(process.stdout);
+    children.stderr.pipe(process.stderr);
   }
 }
 
@@ -63,3 +71,11 @@ async function start() {
 }
 
 start();
+
+process.on('uncaughtException', (e) => {
+  console.log(e);
+});
+
+process.on('unhandledRejection', (e) => {
+  console.log(e);
+});

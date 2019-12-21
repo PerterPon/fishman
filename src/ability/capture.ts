@@ -7,17 +7,22 @@
 
 import { screen, Bitmap } from "robotjs";
 
-import { TRect, TBitmap } from "fishman";
+import { TRect, TBitmap, TSituationProbabilityModel } from "fishman";
 
 import { debug } from 'debug';
 
 const debugLog: debug.Debugger = debug("capture");
-
-export function capture(rect: TRect): TBitmap {
+// const debugLog = console.log as any;
+export function capture(rect?: TRect): TBitmap {
   const start: Date = new Date();
-  const bitmap: Bitmap = screen.capture(rect.x, rect.y, rect.w, rect.h);
+  let bitmap: Bitmap;
+  if (undefined === rect) {
+    bitmap = screen.capture();
+  } else {
+    bitmap = screen.capture(rect.x, rect.y, rect.w, rect.h);
+  }
   const end: Date = new Date();
-  debugLog(`capture take time: [${+end - +start}]ms with area: [${rect.w * rect.h}]`);
+  debugLog(`capture take time: [${+end - +start}]ms with area: [${bitmap.width}, ${bitmap.height}]`);
 
   return {
     width: bitmap.width,

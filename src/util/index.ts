@@ -12,7 +12,8 @@ import { templateJudge } from 'src/ability/image_id';
 
 import { ETemplate } from "src/constants/enums";
 
-import { TPixel, TPoint, TBitmap, TPointTemplate, TMemory } from "fishman";
+import { TPixel, TPoint, TBitmap, TPointTemplate, TMemory, TFeatureMap, TRect } from "fishman";
+import { getConfig } from "src/core/config";
 
 export async function sleep(time: number): Promise<void> {
   return new Promise((resolve) => {
@@ -45,6 +46,12 @@ export function colorAt(bmpImg: TBitmap, point: TPoint): string {
   return rgb2hex(rgb);
 }
 
+export function pixelAt(bmpImg: TBitmap, point: TPoint): TPixel {
+  const position: number = bmpImg.byteWidth * point.y + bmpImg.bytesPerPixel * point.x;
+  const rgb: TPixel = [bmpImg.image.readUInt8(position + 2), bmpImg.image.readUInt8(position + 1), bmpImg.image.readUInt8(position + 0)];
+  return rgb;
+}
+
 export async function humanDelay(): Promise<void> {
   await randomSleep(300, 800);
 }
@@ -58,32 +65,47 @@ export function getTemplateCenter(templateName: ETemplate): TPoint {
   }
 }
 
-export function templateBtnClick(lastPoint: TPoint, templateMap: Map<ETemplate, TPoint>, template: ETemplate): TPoint {
-  const templatePoint: TPoint = templateMap.get(ETemplate.BN_LOGIN_BUTTON);
-  let nowPoint: TPoint = templatePoint || lastPoint;
+export function templateBtnClick(templateMap: TFeatureMap, template: ETemplate): void {
+  debugger;
+  const templateRect: TRect = templateMap[template];
 
-  if (null === templatePoint) {
+  if (null === templateRect) {
     console.error(`trying to do action: [bn_login], but with no template point data!`);
     return;
   }
 
-  const centerPoint: TPoint = getTemplateCenter(ETemplate.BN_LOGIN_BUTTON);
-  mouse.moveTo(centerPoint.x + nowPoint.x, centerPoint.y + nowPoint.y);
+  const centerPoint: TPoint = {
+    x: templateRect.x + Math.floor(templateRect.w / 2),
+    y: templateRect.y + Math.floor(templateRect.h / 2),
+  };
+  mouse.moveTo(centerPoint);
   humanDelay();
   mouse.leftClick();
   humanDelay();
-
-  return nowPoint;
 }
 
-export function imgTemplateJudge(memory: TMemory, template: ETemplate): TPoint {
+export function imgTemplateJudge(img: TBitmap, template: ETemplate): TRect {
+  const config = getConfig();
   const templateInfo: TPointTemplate = getTemplate(template);
   if (undefined === templateInfo) {
     console.log(chalk.red(`trying to judge template: [${template}], but got null`));
     return null;
   }
 
-  const memoryPicture: TBitmap = memory.picture;
-  const point: TPoint = templateJudge(memoryPicture, templateInfo);
-  return point;
+  // const memoryPicture: TBitmap = memory.picture;
+  const point: TPoint = templateJudge(img, templateInfo, config.precision);
+  if (null === point) {
+    return null;
+  }
+
+  return {
+    x: point.x,
+    y: point.y,
+    w: templateInfo.width,
+    h: templateInfo.height,
+  };
+}
+
+export function fatCoorNumber(number: number): number {
+  return Math.floor(number / 10);
 }

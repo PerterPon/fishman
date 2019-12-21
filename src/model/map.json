@@ -1,0 +1,15 @@
+{
+    "test": {
+        "area": {
+            "obstacle": [],
+            "water": [],
+            "road": []
+        },
+        "monster": {
+
+        },
+        "nps": {
+
+        }
+    }
+}

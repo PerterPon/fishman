@@ -11,10 +11,7 @@ import { moveTo2, rightDown, rightUp } from 'src/ability/mouse';
 async function start(): Promise<void> {
   init();
   startMonitor();
-  keyDown(keyMap.a);
-  await sleep(100);
-  keyUp(keyMap.a);
-  await sleep(10000000);
+  await sleep(1000);
   record();
 }
 

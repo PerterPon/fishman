@@ -17,8 +17,7 @@ import { TMap } from 'fishman/map';
 let mapData: {[name: string]: TMap} = require('./map.json');
 
 export async function init(): Promise<void> {
-  // mapData = require('./map.json');
-  const mapDataString: string = fs.readFileSync(path.join(__dirname, 'map.json'), 'utf-8');
+  const mapDataString: string = fs.readFileSync(path.join('D:\\wow\\fishman\\model', 'map.json'), 'utf-8');
   mapData = JSON.parse(mapDataString);
 }
 

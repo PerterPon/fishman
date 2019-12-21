@@ -6,6 +6,7 @@
  */
 
 export const keyMap = {
+  'dot': 53,
   'f1': 58,
   'f2': 59,
   'f3': 60,
@@ -29,5 +30,6 @@ export const keyMap = {
   'x': 27,
   'tab': 43,
   'space': 44,
-  'esc': 41
+  'esc': 41,
+  'leftMiddleBrackets': 47
 };

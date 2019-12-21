@@ -17,18 +17,14 @@ import { FULL_FACING, FACING_PER_MS } from 'src/constants';
 import { getMap, updateMap } from 'src/model/map';
 import { TMap } from 'fishman/map';
 
-let running: boolean = false;
-const currentMap: string = '';
-
 const finder = new pf.BestFirstFinder({
   allowDiagonal: true
 });
 
-export async function aiRunTo(point: TPoint): Promise<void> {
+export async function aiRunTo(targetPoint: TPoint): Promise<void> {
   const grid = new pf.Grid(1000, 1000);
   const map: TMap = getMap('test');
   const { obstacle } = map.area;
-  console.log('obstacle', obstacle);
   for (let i = 0; i < obstacle.length; i++) {
     const obstaclePoint: TPoint = obstacle[i];
     const x: number = Math.floor(obstaclePoint.x / 10);
@@ -36,35 +32,42 @@ export async function aiRunTo(point: TPoint): Promise<void> {
     grid.setWalkableAt(x, y, false);
   }
   const { player_x, player_y } = vision.monitorValue;
+  console.time('find path take');
   const results:[number, number][] = finder.findPath(
     fatCoorNumber(player_x),
     fatCoorNumber(player_y),
-    fatCoorNumber(point.x),
-    fatCoorNumber(point.y),
+    fatCoorNumber(targetPoint.x),
+    fatCoorNumber(targetPoint.y),
     grid
   );
+  console.timeEnd('find path take');
   const polyedPoints: TPoint[] = polyPoints(results);
-  while(0 < polyedPoints.length) {
-    const points: TPoint  = polyedPoints.shift();
+  while(0 < polyedPoints.length && 0 === vision.monitorValue.combat && 0 === vision.monitorValue.target_exists) {
+    const nextPoint: TPoint  = polyedPoints.shift();
     try {
-      console.log('run to : ', points);
-      await runTo(points);
+      console.log('run to : ', nextPoint);
+      await runTo({
+        x: nextPoint.x * 10,
+        y: nextPoint.y * 10
+      });
     } catch (e) {
       if (0 === e.message.indexOf('Obstacle')) {
         const { player_x, player_y } = vision.monitorValue;
         console.log('ai run with a obstacle! regenerating path');
         updateMap('test', { x: player_x, y: player_y });
-        await aiRunTo(point);
-        break;
+        await aiRunTo(targetPoint);
+        return;
       }
     }
   }
+
+  console.log(`ai run to end!`);
 }
 
 export async function runTo(point: TPoint): Promise<void> {
-  await adjustFacing(point);
 
-  keyDown(keyMap.w);
+  console.log('run to point: ', point.x, point.y);
+  keyPress(keyMap.dot);
 
   let times: number = 0;
   let latestPont: TPoint = {
@@ -72,16 +75,16 @@ export async function runTo(point: TPoint): Promise<void> {
     y: 0
   };
 
-  while (0 === vision.monitorValue.combat) {
+  while (0 === vision.monitorValue.combat && 0 === vision.monitorValue.target_exists) {
     await sleep(50);
     times++;
     const { player_x, player_y } = vision.monitorValue;
-    if (20 === times) {
+    if (22 === times) {
       times = 0;
       // find a obstacle
       if (player_x === latestPont.x && player_y === latestPont.y) {
         const error: Error = new Error(`Obstacle!, x: [${player_x}], y: [${player_y}]`);
-        keyUp(keyMap.w);
+        keyPress(keyMap.s);
         await sleep(100);
         throw error;
       }
@@ -89,16 +92,16 @@ export async function runTo(point: TPoint): Promise<void> {
         x: player_x,
         y: player_y
       }
-      await microAdjustFacing(point);
+      microAdjustFacing(point);
     }
-    if (Math.abs(player_x - point.x) <= 5 && Math.abs(player_y - point.y) <= 5) {
+    if (Math.abs(player_x - point.x) <= 15 && Math.abs(player_y - point.y) <= 15) {
       break;
     }
   }
 
-  keyUp(keyMap.w);
-  await sleep(100)
-  releaseAllKey();
+  // keyUp(keyMap.w);
+  // await sleep(100)
+  // releaseAllKey();
 }
 
 function polyPoints(points: [number, number][]): TPoint[] {
@@ -116,6 +119,9 @@ function polyPoints(points: [number, number][]): TPoint[] {
       result.push({x, y});
       latestFace = face;
       latestPoint = {x, y}
+    } else if(i === points.length - 1) {
+      result.pop();
+      result.push({x, y});
     }
   }
 
@@ -127,9 +133,6 @@ async function microAdjustFacing(targetPoint: TPoint): Promise<void> {
   const { player_facing: playFacing, player_x, player_y } = vision.monitorValue;
   const targetFacing: number = calculateFacing(targetPoint, { x: player_x, y: player_y });
   const facingDis: number = Math.abs(targetFacing - playFacing);
-  if (facingDis <= 10) {
-    return;
-  }
 
   let code: number;
   if (playFacing < targetFacing) {
@@ -147,7 +150,11 @@ async function microAdjustFacing(targetPoint: TPoint): Promise<void> {
   }
 
   keyDown(code);
-  await sleep(facingDis / FACING_PER_MS);
+  let adjustTime: number = facingDis / FACING_PER_MS;
+  if (adjustTime > 1000) {
+    adjustTime = 1000;
+  }
+  await sleep(adjustTime);
   keyUp(code);
 }
 
@@ -176,14 +183,19 @@ async function adjustFacing(targetPoint: TPoint): Promise<void> {
   return new Promise(async (resolve) => {
     keyDown(code);
     while(0 === vision.monitorValue.combat) {
-      await sleep(50);
+      // const facingDis = Math.abs(targetFacing - vision.monitorValue.player_facing);
+      // keyDown(code);
+      // await sleep(facingDis / FACING_PER_MS);
+      // keyUp(code);
       if (Math.abs(targetFacing - vision.monitorValue.player_facing) <= 100) {
-        keyUp(code);
-        keyUp(code);
-        // vision.monitor.removeListener('player_facing', listenFacing);
         resolve();
+        keyUp(code);
+        await sleep(100);
+        releaseAllKey();
+        console.log('adjustFacing done');
         break;
       }
+      await sleep(50);
     }
   });
 }
@@ -204,7 +216,7 @@ function calculateFacing(targetPoint: TPoint, playerPoint: TPoint): number {
 }
 
 export async function stopRun(): Promise<void> {
-  running = false;
+  // running = false;
 }
 
 function moveChange(): void {

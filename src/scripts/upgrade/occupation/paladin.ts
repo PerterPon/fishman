@@ -11,6 +11,7 @@ import { sleep } from 'src/util';
 import { statusValue, eventBus } from 'src/monitor';
 
 import { cycleDoUntilLeaveCombat, combatPress, notCombatPress } from 'src/scripts/upgrade/main';
+import vision from 'src/vision';
 
 async function healthChange(): Promise<void> {
   const value: number = statusValue.player_health;
@@ -55,27 +56,42 @@ async function jesus() {
   combatPress(keyMap['3']);
 }
 
+export async function findTarget(): Promise<void> {
+  keyPress(keyMap.tab);
+  await sleep(50);
+  if (0 === vision.monitorValue.target_exists) {
+    return;
+  }
+
+  if (45 >= vision.monitorValue.target_minDistance) {
+    keyPress(keyMap.leftMiddleBrackets);
+    await sleep(15 * 10);
+  } else {
+    keyPress(keyMap.esc);
+  }
+}
+
 export async function enterCombat(): Promise<void> {
   combatPress(keyMap.s);
 
   combatPress(keyMap.f9);
   await sleep(1000);
-  combatPress(keyMap.f4);
+  combatPress(keyMap.leftMiddleBrackets);
   await sleep(300);
   combatPress(keyMap.s);
   await sleep(300);
-  combatPress(keyMap.f4);
+  combatPress(keyMap.leftMiddleBrackets);
   await sleep(300);
   combatPress(keyMap.s);
 
-  cycleDoUntilLeaveCombat([keyMap.f4], 500);
+  cycleDoUntilLeaveCombat([keyMap.leftMiddleBrackets], 500);
 }
 
 export async function leaveCombat(): Promise<void> {
   notCombatPress(keyMap.f10);
   await sleep(1000);
   // search body
-  notCombatPress(keyMap.f4);
+  notCombatPress(keyMap.leftMiddleBrackets);
   await sleep(1000);
   // clear target
   notCombatPress(keyMap.f9);

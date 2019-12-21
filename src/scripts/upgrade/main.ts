@@ -14,15 +14,16 @@ import { keyMap } from 'src/constants/keymap';
 import { sleep } from 'src/util';
 import { runTo, stopRun, aiRunTo } from 'src/ability/walk';
 
-import { enterCombat as paladinEnterCombat, leaveCombat as paladinLeaveCombat } from 'src/scripts/upgrade/occupation/paladin';
+// import { enterCombat as paladinEnterCombat, leaveCombat as paladinLeaveCombat, findTarget as paladinFindTarget } from 'src/scripts/upgrade/occupation/paladin';
 import { TPoint } from 'fishman';
 import { TRoadPoint } from 'fishman/map';
+import vision from 'src/vision';
 
 let combatTimes: number = 0;
 let notCombatTimes: number = 0;
 
 export async function cycleDoUntilEnterCombat(code: number[], time: number): Promise<void> {
-  while (run && 0 === statusValue.combat) {
+  while (0 === statusValue.combat) {
       await sleep(time);
       if (1 === (statusValue.combat) as any) {
           break;
@@ -34,7 +35,7 @@ export async function cycleDoUntilEnterCombat(code: number[], time: number): Pro
 }
 
 export async function cycleDoUntilLeaveCombat(code: number[], time: number): Promise<void> {
-  while (run && 1 === statusValue.combat) {
+  while (1 === statusValue.combat) {
       await sleep(time);
       if (0 === (statusValue.combat) as any) {
           break;
@@ -76,28 +77,29 @@ async function combatChange() {
 }
 7
 async function enterCombat(): Promise<void> {
-  if ('paladin' === occupation) {
-    await paladinEnterCombat();
-  }
+  await require(`src/scripts/upgrade/occupation/${occupation}`).enterCombat();
+  // if ('paladin' === occupation) {
+  //   await paladinEnterCombat();
+  // }
 }
 
 async function leaveCombat(): Promise<void> {
-  if ('paladin' === occupation) {
-    await paladinLeaveCombat();
-  }
+  await require(`src/scripts/upgrade/occupation/${occupation}`).leaveCombat();
+
+  // if ('paladin' === occupation) {
+  //   await paladinLeaveCombat();
+  // }
   
   console.log('start run to next location');
   await patrolUntilFindATarget();
 }
 
-const roads: TRoadPoint[] = [{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5356,"y":4126,"facing":5901},{"x":5359,"y":4096,"facing":6170},{"x":5363,"y":3976,"facing":320},{"x":5354,"y":3918,"facing":6170},{"x":5366,"y":3895,"facing":5468},{"x":5372,"y":3867,"facing":94},{"x":5366,"y":3839,"facing":572},{"x":5325,"y":3735,"facing":214},{"x":5324,"y":3705,"facing":6273},{"x":5324,"y":3675,"facing":6125},{"x":5329,"y":3646,"facing":6050},{"x":5344,"y":3591,"facing":5632},{"x":5354,"y":3565,"facing":6259},{"x":5349,"y":3537,"facing":765},{"x":5332,"y":3543,"facing":2436},{"x":5323,"y":3570,"facing":2808},{"x":5321,"y":3600,"facing":3136},{"x":5323,"y":3721,"facing":3329},{"x":5330,"y":3748,"facing":3671},{"x":5344,"y":3770,"facing":3970},{"x":5358,"y":3792,"facing":3477},{"x":5366,"y":3850,"facing":3074},{"x":5359,"y":3879,"facing":2733},{"x":5352,"y":3907,"facing":3091},{"x":5351,"y":3937,"facing":3388},{"x":5360,"y":3996,"facing":3136},{"x":5359,"y":4178,"facing":2853},{"x":5342,"y":4265,"facing":2945},{"x":5325,"y":4351,"facing":2587},{"x":5302,"y":4401,"facing":2243}]; 
+const roads: TRoadPoint[] = [{"x":4370,"y":5227,"facing":1694},{"x":4289,"y":5245,"facing":2022},{"x":4179,"y":5336,"facing":2481},{"x":4174,"y":5367,"facing":2973},{"x":4163,"y":5426,"facing":2436},{"x":4145,"y":5440,"facing":1927},{"x":4105,"y":5457,"facing":1392},{"x":4085,"y":5450,"facing":1020},{"x":3980,"y":5347,"facing":438},{"x":3978,"y":5317,"facing":6187},{"x":3988,"y":5290,"facing":5515},{"x":4007,"y":5277,"facing":5096},{"x":4024,"y":5258,"facing":5425},{"x":4040,"y":5238,"facing":5185},{"x":4061,"y":5233,"facing":4620},{"x":4082,"y":5233,"facing":4813},{"x":4123,"y":5233,"facing":4410},{"x":4139,"y":5253,"facing":4007},{"x":4139,"y":5253,"facing":4007},{"x":4269,"y":5412,"facing":4426},{"x":4290,"y":5415,"facing":4785},{"x":4331,"y":5405,"facing":5023}];
+
 let currentIndex = 0;
 async function patrolUntilFindATarget(): Promise<void> {
-  await aiRunTo({
-    x: 5096,
-    y: 4123
-  });
-  return;
+  currentIndex = findNearestPoint(roads);
+  console.log('currentIndex', currentIndex);
   while (0 === statusValue.combat) {
     combatCheck();
     const nowFacing: number = roads[currentIndex].facing;
@@ -111,13 +113,41 @@ async function patrolUntilFindATarget(): Promise<void> {
       }
     }
 
-    if (currentIndex >= roads.length) {
+    if (currentIndex >= roads.length - 1) {
       currentIndex = 0;
     }
-    await runTo(roads[currentIndex++]);
+    const nextPoint: TRoadPoint = roads[currentIndex++];
+    try {
+      await runTo(nextPoint);
+    } catch (e) {
+      keyPress(keyMap.s);
+      await sleep(1000);
+      await aiRunTo(nextPoint);
+    }
+
     // currentIndex++;
-    await tryFindTarget();
+    await require(`src/scripts/upgrade/occupation/${occupation}`).findTarget();
+    // await tryFindTarget();
   }
+}
+
+function findNearestPoint(points: TRoadPoint[]): number {
+  const { player_x, player_y } = vision.monitorValue;
+  let nearestDistance: number = Number.MAX_VALUE;
+  let nearestIndex: number = -1;
+  for(let i = 0; i < points.length; i++) {
+    const point: TRoadPoint = points[i];
+    const distance: number = Math.abs(
+      Math.sqrt(
+        Math.pow(point.x - player_x, 2) + Math.pow(point.y - player_y, 2)
+      )
+    );
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestIndex = i;
+    }
+  }
+  return nearestIndex;
 }
 
 async function tryFindTarget(): Promise<void> {

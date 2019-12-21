@@ -12,7 +12,7 @@ import { releaseAllMouse } from 'src/ability/mouse';
 import { keyMap } from 'src/constants/keymap';
 
 import { sleep } from 'src/util';
-import { runTo, stopRun } from 'src/ability/walk';
+import { runTo, stopRun, aiRunTo } from 'src/ability/walk';
 
 import { enterCombat as paladinEnterCombat, leaveCombat as paladinLeaveCombat } from 'src/scripts/upgrade/occupation/paladin';
 import { TPoint } from 'fishman';
@@ -74,7 +74,7 @@ async function combatChange() {
     leaveCombat();
   }
 }
-
+7
 async function enterCombat(): Promise<void> {
   if ('paladin' === occupation) {
     await paladinEnterCombat();
@@ -90,9 +90,14 @@ async function leaveCombat(): Promise<void> {
   await patrolUntilFindATarget();
 }
 
-const roads: TRoadPoint[] = [{"x":5608,"y":6021,"facing":4957},{"x":5628,"y":6012,"facing":5315},{"x":5712,"y":5918,"facing":5793},{"x":5712,"y":5918,"facing":5793},{"x":5712,"y":5918,"facing":5793},{"x":5712,"y":5918,"facing":5793},{"x":5712,"y":5918,"facing":5793},{"x":5712,"y":5918,"facing":5793},{"x":5712,"y":5918,"facing":5793},{"x":5808,"y":5631,"facing":47},{"x":5798,"y":5572,"facing":584},{"x":5798,"y":5572,"facing":584},{"x":5798,"y":5572,"facing":584},{"x":5798,"y":5572,"facing":584},{"x":5798,"y":5572,"facing":584},{"x":5798,"y":5572,"facing":584},{"x":5798,"y":5572,"facing":584},{"x":5798,"y":5572,"facing":584},{"x":5798,"y":5572,"facing":584},{"x":5653,"y":5265,"facing":1091},{"x":5558,"y":5201,"facing":1480},{"x":5475,"y":5193,"facing":2045},{"x":5402,"y":5254,"facing":2342},{"x":5341,"y":5342,"facing":2059}]; 
+const roads: TRoadPoint[] = [{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5251,"y":4434,"facing":5812},{"x":5356,"y":4126,"facing":5901},{"x":5359,"y":4096,"facing":6170},{"x":5363,"y":3976,"facing":320},{"x":5354,"y":3918,"facing":6170},{"x":5366,"y":3895,"facing":5468},{"x":5372,"y":3867,"facing":94},{"x":5366,"y":3839,"facing":572},{"x":5325,"y":3735,"facing":214},{"x":5324,"y":3705,"facing":6273},{"x":5324,"y":3675,"facing":6125},{"x":5329,"y":3646,"facing":6050},{"x":5344,"y":3591,"facing":5632},{"x":5354,"y":3565,"facing":6259},{"x":5349,"y":3537,"facing":765},{"x":5332,"y":3543,"facing":2436},{"x":5323,"y":3570,"facing":2808},{"x":5321,"y":3600,"facing":3136},{"x":5323,"y":3721,"facing":3329},{"x":5330,"y":3748,"facing":3671},{"x":5344,"y":3770,"facing":3970},{"x":5358,"y":3792,"facing":3477},{"x":5366,"y":3850,"facing":3074},{"x":5359,"y":3879,"facing":2733},{"x":5352,"y":3907,"facing":3091},{"x":5351,"y":3937,"facing":3388},{"x":5360,"y":3996,"facing":3136},{"x":5359,"y":4178,"facing":2853},{"x":5342,"y":4265,"facing":2945},{"x":5325,"y":4351,"facing":2587},{"x":5302,"y":4401,"facing":2243}]; 
 let currentIndex = 0;
 async function patrolUntilFindATarget(): Promise<void> {
+  await aiRunTo({
+    x: 5096,
+    y: 4123
+  });
+  return;
   while (0 === statusValue.combat) {
     combatCheck();
     const nowFacing: number = roads[currentIndex].facing;

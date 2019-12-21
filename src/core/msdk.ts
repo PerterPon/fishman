@@ -28,6 +28,7 @@ var libm = ffi.Library('D:\\wow\\fishman\\src\\core\\msdk.dll', {
 });
 
 const deviceHandler: number = libm.M_Open(1);
+releaseAllKey();
 console.log(`msdk got handler: [${deviceHandler}]`);
 
 export async function init(): Promise<void> {

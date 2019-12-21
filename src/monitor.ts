@@ -20,7 +20,7 @@ import { TPoint, TBitmap, TPointTemplate, TRect, TPixel } from "fishman";
 
 let flagPoint: TPoint = null;
 let run: boolean = false;
-const pontCount: number = 11;
+const pontCount: number = 14;
 
 const rgbValueMap:any = {
 "0": "0000",
@@ -66,7 +66,6 @@ export async function startMonitor(): Promise<void> {
         updateStatusValue(statusValue, newValue);
         detectValueChange(oldValue, statusValue);
         await sleep(5);
-        // console.log(statusValue);
     }
 }
 
@@ -76,23 +75,29 @@ export async function stopMonitor(): Promise<void>{
 
 const statusIndexMap = [
     "moving",
-    'combat',
-    'attack',
-    'player_health',
-    'player_level',
-    'player_dead',
-    'player_swimming',
-    'player_x',
-    'player_y',
-    'player_facing',
-    'target_dead',
-    'target_exists',
-    'target_health',
-    'target_level',
-    'target_minDistance',
-    'target_maxDistance',
-    'float_xp',
-    'float_gold' 
+    "combat",
+    "attack",
+    "player_health",
+    "player_energy",
+    "player_level",
+    "player_dead",
+    "player_ghost",
+    "player_swimming",
+    "player_can_resurrection",
+    "player_x",
+    "player_y",
+    "player_facing",
+    "player_corpse_x",
+    "player_corpse_y",
+    "player_casting",
+    "target_dead",
+    "target_exists",
+    "target_health",
+    "target_level",
+    "target_minDistance",
+    "target_maxDistance",
+    "float_xp",
+    "float_gold"
 ];
 
 const statusArray: {[name: string]: any} = {
@@ -100,12 +105,18 @@ const statusArray: {[name: string]: any} = {
     combat : 1,
     attack : 1,
     player_health : 7,
+    player_energy : 7,
     player_level : 7,
     player_dead : 1,
-    player_swimming: 1,
+    player_ghost : 1,
+    player_swimming : 1,
+    player_can_resurrection : 1,
     player_x : 14,
     player_y : 14,
     player_facing : 14,
+    player_corpse_x : 14,
+    player_corpse_y : 14,
+    player_casting : 1,
     target_dead : 1,
     target_exists : 1,
     target_health : 7,

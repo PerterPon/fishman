@@ -4,11 +4,17 @@
 import { init, startMonitor, eventBus, statusValue } from 'src/monitor';
 import { sleep } from 'src/util';
 import { TRoadPoint } from 'fishman/map';
+import { keyDown, keyUp } from "src/ability/keyboard";
+import { keyMap } from 'src/constants/keymap';
+import { moveTo2, rightDown, rightUp } from 'src/ability/mouse';
 
 async function start(): Promise<void> {
   init();
   startMonitor();
-  await sleep(1000);
+  keyDown(keyMap.a);
+  await sleep(100);
+  keyUp(keyMap.a);
+  await sleep(10000000);
   record();
 }
 

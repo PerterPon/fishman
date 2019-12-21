@@ -45,6 +45,7 @@ async function moveEtc() {
   fs.copySync(path.join(__dirname, 'etc'), path.join(buildFolder, 'etc'));
   fs.copySync(path.join(__dirname, 'src/model/situations'), path.join(buildFolder, 'src/model/situations'));
   fs.copySync(path.join(__dirname, 'src/model/template.json'), path.join(buildFolder, 'src/model/template.json'));
+  fs.copySync(path.join(__dirname, 'src/model/map.json'), path.join(buildFolder, 'src/model/map.json'));
 }
 
 function run() {

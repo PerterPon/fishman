@@ -105,3 +105,7 @@ export function imgTemplateJudge(img: TBitmap, template: ETemplate): TRect {
     h: templateInfo.height,
   };
 }
+
+export function fatCoorNumber(number: number): number {
+  return Math.floor(number / 10);
+}

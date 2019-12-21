@@ -21,6 +21,7 @@ function stop() {
   if (null === mainProcess) {
     return;
   }
+  console.log('main process stopped');
   exec('taskkill /pid ' + mainProcess.pid + ' /T /F')
   mainProcess = null;
 }

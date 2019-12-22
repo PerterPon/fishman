@@ -12,7 +12,7 @@ let mainProcess: ChildProcess;
 
 function start() {
   const main: string = path.join(__dirname, 'multi-thread', 'index.js');
-  mainProcess = exec(`node ${main}`);
+  mainProcess = exec(`node --experimental-worker ${main}`);
   mainProcess.stderr.pipe(process.stderr);
   mainProcess.stdout.pipe(process.stdout);
 }

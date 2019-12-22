@@ -8,32 +8,37 @@
 import { TPoint } from "fishman";
 import * as path from 'path';
 import * as _ from 'lodash';
-const ffi = require('ffi');
 
-var libm = ffi.Library('D:\\wow\\fishman\\src\\core\\msdk.dll', {
-  'M_Open': [ 'int', [ 'int' ] ],
-  'M_Close': [ 'int', [ 'int' ] ],
-  'M_KeyPress': [ 'int', [ 'int', 'int', 'int'] ],
-  'M_KeyDown': [ 'int', [ 'int', 'int'] ],
-  'M_KeyUp': [ 'int', [ 'int', 'int'] ],
-  'M_LeftClick': [ 'int', [ 'int', 'int' ] ],
-  'M_MoveTo' : [ 'int', [ 'int', 'int', 'int' ]],
-  'M_MoveTo2' : [ 'int', [ 'int', 'int', 'int' ]],
-  'M_LeftDown' : [ 'int', [ 'int' ] ],
-  'M_LeftUp' : [ 'int', [ 'int' ] ],
-  'M_RightDown' : [ 'int', [ 'int' ] ],
-  'M_RightUp' : [ 'int', [ 'int' ] ],
-  'M_RightClick': [ 'int', [ 'int', 'int' ] ],
-  'M_ReleaseAllMouse': [ 'int', ['int'] ],
-  'M_ReleaseAllKey': [ 'int', ['int'] ],
-});
 
 export let deviceHandler: number;
 
+let libm: any = null;
 export async function init(handler?: number): Promise<void> {
+
+  const ffi = require('ffi');
+
+  libm = ffi.Library('D:\\wow\\fishman\\src\\core\\msdk.dll', {
+    'M_Open': [ 'int', [ 'int' ] ],
+    'M_Close': [ 'int', [ 'int' ] ],
+    'M_KeyPress': [ 'int', [ 'int', 'int', 'int'] ],
+    'M_KeyDown': [ 'int', [ 'int', 'int'] ],
+    'M_KeyUp': [ 'int', [ 'int', 'int'] ],
+    'M_LeftClick': [ 'int', [ 'int', 'int' ] ],
+    'M_MoveTo' : [ 'int', [ 'int', 'int', 'int' ]],
+    'M_MoveTo2' : [ 'int', [ 'int', 'int', 'int' ]],
+    'M_LeftDown' : [ 'int', [ 'int' ] ],
+    'M_LeftUp' : [ 'int', [ 'int' ] ],
+    'M_RightDown' : [ 'int', [ 'int' ] ],
+    'M_RightUp' : [ 'int', [ 'int' ] ],
+    'M_RightClick': [ 'int', [ 'int', 'int' ] ],
+    'M_ReleaseAllMouse': [ 'int', ['int'] ],
+    'M_ReleaseAllKey': [ 'int', ['int'] ],
+  });
+
   if (true === _.isNumber(handler)) {
     deviceHandler = handler;
     releaseAllKey();
+    return;
   }
 
   deviceHandler = libm.M_Open(1);

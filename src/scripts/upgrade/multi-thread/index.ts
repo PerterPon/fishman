@@ -58,12 +58,13 @@ async function initEvent(): Promise<void> {
 async function startPatrol(): Promise<void> {
   console.log('starting patrol');
   const patrolFile: string = path.join(__dirname, 'patrol.js');
+  console.log(msdk.deviceHandler);
   patrolWorker = new Worker(patrolFile, {
     workerData: {
       deviceHandler: msdk.deviceHandler
     }
   });
-  findCorpseWorker.postMessage('start');
+  patrolWorker.postMessage('start');
 }
 
 async function stopPatrol(): Promise<void> {

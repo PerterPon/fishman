@@ -7,7 +7,7 @@
 
 import { TAction, TMemory, TSituation, TRect, TContext } from 'fishman';
 import { EGoal, EBiz } from 'src/constants/enums';
-import { TOTAL_VISION, LOOK_DELAY } from './constants';
+import { TOTAL_VISION, LOOK_DELAY } from 'src/constants';
 import { EventEmitter } from 'events';
 
 let currentGoal: EGoal = EGoal.FISH;
@@ -19,8 +19,9 @@ let currentLookTime: number = 0;
 let currentMemory: TMemory[] = [];
 let currentContext: TContext[] = [];
 let currentBiz: EBiz = null;
+let currentOccupation: string = null;
 
-let monitorValue: {[name: string]: any} = {};
+let monitorValue: {[name: string]: any} = null;
 let monitor: EventEmitter;
 
 export default {
@@ -90,6 +91,13 @@ export default {
   set monitor(val) {
     monitor = val;
   },
+
+  get occupation(): string {
+    return currentOccupation;
+  },
+  set occupation(val: string) {
+    currentOccupation = val;
+  }
 
 
 }

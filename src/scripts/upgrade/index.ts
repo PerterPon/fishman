@@ -11,7 +11,7 @@ import * as path from 'path';
 let mainProcess: ChildProcess;
 
 function start() {
-  const main: string = path.join(__dirname, 'main.js');
+  const main: string = path.join(__dirname, 'multi-thread', 'index.js');
   mainProcess = exec(`node ${main}`);
   mainProcess.stderr.pipe(process.stderr);
   mainProcess.stdout.pipe(process.stdout);

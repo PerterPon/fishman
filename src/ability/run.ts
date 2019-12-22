@@ -1,25 +1,34 @@
 
 /*
- * walk.ts
- * Author: 王 羽涵<perterpon.wang@bytedance.com>
- * Create: Sun Nov 24 2019 15:02:46 GMT+0800 (中国标准时间)
- */
+* run.ts
+* Author: perterpon<perterpon@gmail.com>
+* Create: Sun Dec 22 2019 16:08:26 GMT+0800 (中国标准时间)
+*/
 
-import vision from 'src/vision';
-import { keyDown, keyUp, keyPress, releaseAllKey } from 'src/ability/keyboard';
-import { keyMap } from 'src/constants/keymap';
 import * as _ from 'lodash';
 const pf = require('pathfinding');
 
-import { TPoint } from 'fishman';
+import { keyPress, keyDown, keyUp, releaseAllKey } from 'src/ability/keyboard';
+import { keyMap } from 'src/constants/keymap';
+import vision from 'src/vision';
+
+import { FACING_PER_MS, FULL_FACING } from 'src/constants';
 import { sleep, fatCoorNumber } from 'src/util';
-import { FULL_FACING, FACING_PER_MS } from 'src/constants';
 import { getMap, updateMap } from 'src/model/map';
+
+import { TPoint } from "fishman";
 import { TMap } from 'fishman/map';
 
+let running: boolean = false;
 const finder = new pf.BestFirstFinder({
   allowDiagonal: true
 });
+
+export async function stopRun(): Promise<void> {
+  running = false;
+  releaseAllKey();
+  keyPress(keyMap.s);
+}
 
 export async function aiRunTo(targetPoint: TPoint): Promise<void> {
   const grid = new pf.Grid(1000, 1000);
@@ -42,7 +51,7 @@ export async function aiRunTo(targetPoint: TPoint): Promise<void> {
   );
   console.timeEnd('find path take');
   const polyedPoints: TPoint[] = polyPoints(results);
-  while(0 < polyedPoints.length && 0 === vision.monitorValue.combat && 0 === vision.monitorValue.target_exists) {
+  while(0 < polyedPoints.length && true === running) {
     const nextPoint: TPoint  = polyedPoints.shift();
     try {
       console.log('run to : ', nextPoint);
@@ -67,6 +76,7 @@ export async function aiRunTo(targetPoint: TPoint): Promise<void> {
 export async function runTo(point: TPoint): Promise<void> {
   console.log('run to point: ', point.x, point.y);
   keyPress(keyMap.dot);
+  running = true;
 
   let times: number = 0;
   let latestPont: TPoint = {
@@ -74,7 +84,7 @@ export async function runTo(point: TPoint): Promise<void> {
     y: 0
   };
 
-  while (0 === vision.monitorValue.combat && 0 === vision.monitorValue.target_exists) {
+  while (true === running) {
     await sleep(50);
     times++;
     const { player_x, player_y } = vision.monitorValue;
@@ -84,6 +94,10 @@ export async function runTo(point: TPoint): Promise<void> {
       if (player_x === latestPont.x && player_y === latestPont.y) {
         const error: Error = new Error(`Obstacle!, x: [${player_x}], y: [${player_y}]`);
         keyPress(keyMap.s);
+        if (false === running as any) {
+          return;
+        }
+
         await sleep(100);
         throw error;
       }
@@ -97,10 +111,6 @@ export async function runTo(point: TPoint): Promise<void> {
       break;
     }
   }
-
-  // keyUp(keyMap.w);
-  // await sleep(100)
-  // releaseAllKey();
 }
 
 function polyPoints(points: [number, number][]): TPoint[] {
@@ -157,47 +167,6 @@ async function microAdjustFacing(targetPoint: TPoint): Promise<void> {
   keyUp(code);
 }
 
-async function adjustFacing(targetPoint: TPoint): Promise<void> {
-  const { player_facing: playFacing, player_x, player_y } = vision.monitorValue;
-  const targetFacing: number = calculateFacing(targetPoint, { x: player_x, y: player_y });
-  if (Math.abs(targetFacing - playFacing) <= 100) {
-    return;
-  }
-
-  let code: number;
-  if (playFacing < targetFacing) {
-    if (targetFacing - playFacing > FULL_FACING / 2) {
-      code = keyMap.d;
-    } else {
-      code = keyMap.a;
-    }
-  } else {
-    if (playFacing - targetFacing > FULL_FACING / 2) {
-      code = keyMap.a;
-    } else {
-      code = keyMap.d;
-    }
-  }
-
-  return new Promise(async (resolve) => {
-    keyDown(code);
-    while(0 === vision.monitorValue.combat) {
-      // const facingDis = Math.abs(targetFacing - vision.monitorValue.player_facing);
-      // keyDown(code);
-      // await sleep(facingDis / FACING_PER_MS);
-      // keyUp(code);
-      if (Math.abs(targetFacing - vision.monitorValue.player_facing) <= 100) {
-        resolve();
-        keyUp(code);
-        await sleep(100);
-        releaseAllKey();
-        console.log('adjustFacing done');
-        break;
-      }
-      await sleep(50);
-    }
-  });
-}
 
 function calculateFacing(targetPoint: TPoint, playerPoint: TPoint): number {
   const cycleNumber = Math.atan2(targetPoint.y - playerPoint.y, targetPoint.x - playerPoint.x) * 180 / Math.PI;
@@ -212,32 +181,4 @@ function calculateFacing(targetPoint: TPoint, playerPoint: TPoint): number {
     finalAngle = 180 - (cycleNumber - 90);
   }
   return finalAngle / 360 * FULL_FACING;
-}
-
-export async function stopRun(): Promise<void> {
-  // running = false;
-}
-
-function moveChange(): void {
-  if (false === vision.monitorValue.moving) {
-    // 
-  }
-}
-
-function onAngleChange(targetAngle: number): void {
-  const { angle } = vision.monitorValue;
-
-}
-
-function getCurrentAngle(point: TPoint): number {
-  const { monitorValue } = vision;
-  const { player_x, player_y } = monitorValue;
-  const playerPoint: TPoint = {
-    x: player_x,
-    y: player_y,
-  };
-  const targetAngle: number = Math.atan(
-    (point.x - player_x) / (point.y - player_y)
-  );
-  return targetAngle;
 }

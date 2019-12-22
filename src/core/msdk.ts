@@ -7,6 +7,7 @@
 
 import { TPoint } from "fishman";
 import * as path from 'path';
+import * as _ from 'lodash';
 const ffi = require('ffi');
 
 var libm = ffi.Library('D:\\wow\\fishman\\src\\core\\msdk.dll', {
@@ -27,12 +28,17 @@ var libm = ffi.Library('D:\\wow\\fishman\\src\\core\\msdk.dll', {
   'M_ReleaseAllKey': [ 'int', ['int'] ],
 });
 
-const deviceHandler: number = libm.M_Open(1);
-releaseAllKey();
-console.log(`msdk got handler: [${deviceHandler}]`);
+export let deviceHandler: number;
 
-export async function init(): Promise<void> {
+export async function init(handler?: number): Promise<void> {
+  if (true === _.isNumber(handler)) {
+    deviceHandler = handler;
+    releaseAllKey();
+  }
 
+  deviceHandler = libm.M_Open(1);
+  releaseAllKey();
+  console.log(`msdk got handler: [${deviceHandler}]`);
 }
 
 export function moveTo(x: number, y: number): void {

@@ -7,7 +7,7 @@
 
 import { TAction, TMemory, TSituation, TRect, TContext } from 'fishman';
 import { EGoal, EBiz } from 'src/constants/enums';
-import { TOTAL_VISION, LOOK_DELAY } from './constants';
+import { TOTAL_VISION, LOOK_DELAY } from 'src/constants';
 import { EventEmitter } from 'events';
 
 let currentGoal: EGoal = EGoal.FISH;
@@ -19,9 +19,13 @@ let currentLookTime: number = 0;
 let currentMemory: TMemory[] = [];
 let currentContext: TContext[] = [];
 let currentBiz: EBiz = null;
+let currentDeviceHandler: number = -1;
+let currentOccupation: string = null;
 
-let monitorValue: {[name: string]: any} = {};
+let monitorValue: {[name: string]: any} = null;
 let monitor: EventEmitter;
+
+let currentSharedValue: Uint32Array = null;
 
 export default {
   get action(): TAction {
@@ -91,5 +95,24 @@ export default {
     monitor = val;
   },
 
+  get occupation(): string {
+    return currentOccupation;
+  },
+  set occupation(val: string) {
+    currentOccupation = val;
+  },
 
+  get deviceHandler(): number {
+    return currentDeviceHandler;
+  },
+  set deviceHandler(val: number) {
+    currentDeviceHandler = val;
+  },
+
+  get sharedValue(): Uint32Array {
+    return currentSharedValue;
+  },
+  set sharedValue(val: Uint32Array) {
+    currentSharedValue = val;
+  }
 }

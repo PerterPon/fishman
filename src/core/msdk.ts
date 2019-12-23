@@ -5,34 +5,50 @@
 * Create: Fri Oct 25 2019 17:41:44 GMT+0800 (China Standard Time)
 */
 
-import { TPoint } from "fishman";
+import { isMainThread } from 'worker_threads';
 import * as path from 'path';
-const ffi = require('ffi');
+import * as _ from 'lodash';
 
-var libm = ffi.Library('D:\\wow\\fishman\\src\\core\\msdk.dll', {
-  'M_Open': [ 'int', [ 'int' ] ],
-  'M_Close': [ 'int', [ 'int' ] ],
-  'M_KeyPress': [ 'int', [ 'int', 'int', 'int'] ],
-  'M_KeyDown': [ 'int', [ 'int', 'int'] ],
-  'M_KeyUp': [ 'int', [ 'int', 'int'] ],
-  'M_LeftClick': [ 'int', [ 'int', 'int' ] ],
-  'M_MoveTo' : [ 'int', [ 'int', 'int', 'int' ]],
-  'M_MoveTo2' : [ 'int', [ 'int', 'int', 'int' ]],
-  'M_LeftDown' : [ 'int', [ 'int' ] ],
-  'M_LeftUp' : [ 'int', [ 'int' ] ],
-  'M_RightDown' : [ 'int', [ 'int' ] ],
-  'M_RightUp' : [ 'int', [ 'int' ] ],
-  'M_RightClick': [ 'int', [ 'int', 'int' ] ],
-  'M_ReleaseAllMouse': [ 'int', ['int'] ],
-  'M_ReleaseAllKey': [ 'int', ['int'] ],
-});
+import vision from 'src/vision';
 
-const deviceHandler: number = libm.M_Open(1);
-releaseAllKey();
-console.log(`msdk got handler: [${deviceHandler}]`);
+import { MSDK_DLL } from 'src/constants';
 
+import { TPoint } from "fishman";
+
+export let deviceHandler: number;
+
+let libm: any = null;
 export async function init(): Promise<void> {
 
+  const ffi = require('ffi');
+  libm = ffi.Library(MSDK_DLL, {
+    'M_Open': [ 'int', [ 'int' ] ],
+    'M_Close': [ 'int', [ 'int' ] ],
+    'M_KeyPress': [ 'int', [ 'int', 'int', 'int'] ],
+    'M_KeyDown': [ 'int', [ 'int', 'int'] ],
+    'M_KeyUp': [ 'int', [ 'int', 'int'] ],
+    'M_LeftClick': [ 'int', [ 'int', 'int' ] ],
+    'M_MoveTo' : [ 'int', [ 'int', 'int', 'int' ]],
+    'M_MoveTo2' : [ 'int', [ 'int', 'int', 'int' ]],
+    'M_LeftDown' : [ 'int', [ 'int' ] ],
+    'M_LeftUp' : [ 'int', [ 'int' ] ],
+    'M_RightDown' : [ 'int', [ 'int' ] ],
+    'M_RightUp' : [ 'int', [ 'int' ] ],
+    'M_RightClick': [ 'int', [ 'int', 'int' ] ],
+    'M_ReleaseAllMouse': [ 'int', ['int'] ],
+    'M_ReleaseAllKey': [ 'int', ['int'] ],
+  });
+
+  if (true === isMainThread) {
+    deviceHandler = libm.M_Open(1);
+    vision.deviceHandler = deviceHandler;
+    releaseAllKey();
+  } else {
+    deviceHandler = vision.deviceHandler;
+    releaseAllKey();
+  }
+
+  console.log(`msdk got handler: [${deviceHandler}]`);
 }
 
 export function moveTo(x: number, y: number): void {

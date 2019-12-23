@@ -29,7 +29,7 @@ function stop() {
 let recordProcess: ChildProcess;
 function startRecord() {
   const record: string = path.join(__dirname, 'record.js');
-  recordProcess = exec(`node ${record}`);
+  recordProcess = exec(`node --experimental-worker ${record}`);
   recordProcess.stderr.pipe(process.stderr);
   recordProcess.stdout.pipe(process.stdout);
 }

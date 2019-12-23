@@ -10,9 +10,11 @@ import * as path from 'path';
 
 import { init as msdkInit } from 'src/core/msdk';
 import { startThread, stopThread } from 'src/util/thread';
+import { start as startMonitorWorker } from 'src/scripts/upgrade/multi-thread/monitor/worker';
 
 import vision from 'src/vision';
 import { sleep } from 'src/util';
+import { MONITOR_STATUS_INDEX } from 'src/constants';
 
 let currentWorker: Worker = null;
 
@@ -26,10 +28,12 @@ async function start(): Promise<void> {
 }
 
 async function init(): Promise<void> {
+  initOccupation();
   initWorkerMap();
   msdkInit();
-  initEvent();
   startMonitor();
+  await startMonitorWorker();
+  initEvent();
 }
 
 function initWorkerMap(): void {
@@ -44,12 +48,17 @@ function initWorkerMap(): void {
 
 function startMonitor(): void {
   console.log('start monitor');
+  vision.sharedValue = new Uint32Array(new SharedArrayBuffer(MONITOR_STATUS_INDEX.length * 4));
   startThread(workerMap.monitor);
 }
 
 function initEvent(): void {
   vision.monitor.on('combat', combatChange);
   vision.monitor.on('player_dead', playDeadChange);
+}
+
+function initOccupation(): void {
+  vision.occupation = 'paladin';
 }
 
 function combatChange(): void {

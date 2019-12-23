@@ -75,6 +75,8 @@ export async function aiRunTo(targetPoint: TPoint): Promise<void> {
 
 export async function runTo(point: TPoint): Promise<void> {
   console.log('run to point: ', point.x, point.y);
+  // await adjustFacing(point);
+
   keyPress(keyMap.dot);
   running = true;
 
@@ -107,10 +109,52 @@ export async function runTo(point: TPoint): Promise<void> {
       }
       microAdjustFacing(point);
     }
-    if (Math.abs(player_x - point.x) <= 15 && Math.abs(player_y - point.y) <= 15) {
+    if (Math.abs(player_x - point.x) <= 5 && Math.abs(player_y - point.y) <= 5) {
       break;
     }
   }
+}
+
+async function adjustFacing(targetPoint: TPoint): Promise<void> {
+  const { player_facing: playFacing, player_x, player_y } = vision.monitorValue;
+  const targetFacing: number = calculateFacing(targetPoint, { x: player_x, y: player_y });
+  if (Math.abs(targetFacing - playFacing) <= 100) {
+    return;
+  }
+
+  let code: number;
+  if (playFacing < targetFacing) {
+    if (targetFacing - playFacing > FULL_FACING / 2) {
+      code = keyMap.d;
+    } else {
+      code = keyMap.a;
+    }
+  } else {
+    if (playFacing - targetFacing > FULL_FACING / 2) {
+      code = keyMap.a;
+    } else {
+      code = keyMap.d;
+    }
+  }
+
+  return new Promise(async (resolve) => {
+    keyDown(code);
+    while(0 === vision.monitorValue.combat) {
+      // const facingDis = Math.abs(targetFacing - vision.monitorValue.player_facing);
+      // keyDown(code);
+      // await sleep(facingDis / FACING_PER_MS);
+      // keyUp(code);
+      if (Math.abs(targetFacing - vision.monitorValue.player_facing) <= 100) {
+        resolve();
+        keyUp(code);
+        await sleep(100);
+        releaseAllKey();
+        console.log('adjustFacing done');
+        break;
+      }
+      await sleep(50);
+    }
+  });
 }
 
 function polyPoints(points: [number, number][]): TPoint[] {

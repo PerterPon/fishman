@@ -5,12 +5,15 @@
  * Create: Mon Dec 23 2019 15:15:55 GMT+0800 (中国标准时间)
  */
 
+import { EventEmitter } from 'events';
+
 import { MONITOR_STATUS_INDEX } from 'src/constants';
 import vision from 'src/vision';
 
 import { sleep } from 'src/util';
 
 export async function start(): Promise<void> {
+  vision.monitor = new EventEmitter();
   startMonitor();
 }
 
@@ -18,6 +21,7 @@ async function startMonitor(): Promise<void> {
   while (true) {
     const newState: {[name: string]: number} = parseMonitorValue(vision.sharedValue);
     compareState(newState);
+    vision.monitorValue = newState;
     await sleep(5);
   }
 }

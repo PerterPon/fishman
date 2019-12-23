@@ -19,6 +19,7 @@ let currentLookTime: number = 0;
 let currentMemory: TMemory[] = [];
 let currentContext: TContext[] = [];
 let currentBiz: EBiz = null;
+let currentDeviceHandler: number = -1;
 let currentOccupation: string = null;
 
 let monitorValue: {[name: string]: any} = null;
@@ -97,7 +98,12 @@ export default {
   },
   set occupation(val: string) {
     currentOccupation = val;
+  },
+
+  get deviceHandler(): number {
+    return currentDeviceHandler;
+  },
+  set deviceHandler(val: number) {
+    currentDeviceHandler = val;
   }
-
-
 }

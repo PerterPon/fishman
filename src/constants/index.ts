@@ -28,3 +28,5 @@ export const FULL_FACING: number = 6282;
 export const FACING_PER_MS: number = 3.4;
 
 export const MONITOR_POINT: number = 14;
+
+export const MSDK_DLL: string = 'D:\\wow\\fishman\\src\\core\\msdk.dll';

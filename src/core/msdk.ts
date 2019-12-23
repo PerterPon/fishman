@@ -5,19 +5,23 @@
 * Create: Fri Oct 25 2019 17:41:44 GMT+0800 (China Standard Time)
 */
 
-import { TPoint } from "fishman";
+import { isMainThread } from 'worker_threads';
 import * as path from 'path';
 import * as _ from 'lodash';
 
+import vision from 'src/vision';
+
+import { MSDK_DLL } from 'src/constants';
+
+import { TPoint } from "fishman";
 
 export let deviceHandler: number;
 
 let libm: any = null;
-export async function init(handler?: number): Promise<void> {
+export async function init(): Promise<void> {
 
   const ffi = require('ffi');
-
-  libm = ffi.Library('D:\\wow\\fishman\\src\\core\\msdk.dll', {
+  libm = ffi.Library(MSDK_DLL, {
     'M_Open': [ 'int', [ 'int' ] ],
     'M_Close': [ 'int', [ 'int' ] ],
     'M_KeyPress': [ 'int', [ 'int', 'int', 'int'] ],
@@ -35,14 +39,16 @@ export async function init(handler?: number): Promise<void> {
     'M_ReleaseAllKey': [ 'int', ['int'] ],
   });
 
-  if (true === _.isNumber(handler)) {
-    deviceHandler = handler;
+  if (true === isMainThread) {
+    deviceHandler = vision.deviceHandler;
     releaseAllKey();
     return;
+  } else {
+    deviceHandler = libm.M_Open(1);
+    vision.deviceHandler = deviceHandler;
+    releaseAllKey();
   }
 
-  deviceHandler = libm.M_Open(1);
-  releaseAllKey();
   console.log(`msdk got handler: [${deviceHandler}]`);
 }
 

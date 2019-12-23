@@ -33,7 +33,7 @@ async function initWorker(): Promise<void> {
   }
   vision.occupation = occupation;
 
-  await msdk.init(msdk.deviceHandler);
+  await msdk.init();
   monitorInit();
   startMonitor();
 }

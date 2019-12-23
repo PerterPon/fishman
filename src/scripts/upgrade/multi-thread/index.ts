@@ -11,6 +11,7 @@ import * as path from 'path';
 import { init as monitorInit, startMonitor, statusIndexMap } from 'src/scripts/upgrade/multi-thread/monitor';
 import { init as coreInit } from 'src/scripts/upgrade/multi-thread/init';
 import * as msdk from 'src/core/msdk';
+import { startThread, stopThread } from 'src/util/thread';
 
 import vision from 'src/vision';
 import { sleep } from 'src/util';
@@ -58,22 +59,61 @@ async function initEvent(): Promise<void> {
 async function startPatrol(): Promise<void> {
   console.log('starting patrol');
   const patrolFile: string = path.join(__dirname, 'patrol.js');
-  console.log(msdk.deviceHandler);
-  patrolWorker = new Worker(patrolFile, {
-    workerData: {
-      deviceHandler: msdk.deviceHandler
-    }
-  });
-  patrolWorker.postMessage('start');
+  patrolWorker = await startThread(patrolFile);
 }
 
 async function stopPatrol(): Promise<void> {
   console.log('stopping patrol');
-  if (patrolWorker) {
-    patrolWorker.terminate = util.promisify(patrolWorker.terminate);
-    await patrolWorker.terminate();
-  }
-  console.log('patrol stopped!');
+  await stopThread(patrolWorker);
+  patrolWorker = null;
+}
+
+async function startAttack(): Promise<void> {
+  console.log('start attack');
+  const file: string = path.join(__dirname, 'attack', `${vision.occupation}.js`);
+  attackWorker = await startThread(file);
+}
+
+async function stopAttack(): Promise<void> {
+  console.log('stop attack');
+  await stopThread(attackWorker);
+  attackWorker = null;
+}
+
+async function startFindCorpse(): Promise<void> {
+  console.log('start find corpse');
+  const file: string = path.join(__dirname, 'find-corpse.js');
+  findCorpseWorker = await startThread(file);
+}
+
+async function stopFindCorpse(): Promise<void> {
+  console.log('stop find corpse');
+  await stopThread(findCorpseWorker);
+  findCorpseWorker = null;
+}
+
+async function startGoHome(): Promise<void> {
+  console.log('start go home');
+  const file: string = path.join(__dirname, 'go-home.js');
+  goHomeWorker = await startThread(file);
+}
+
+async function stopGoHome(): Promise<void> {
+  console.log('stop go home');
+  stopThread(goHomeWorker);
+  goHomeWorker = null;
+}
+
+async function startRest(): Promise<void> {
+  console.log('start rest');
+  const file: string = path.join(__dirname, 'rest', `${vision.occupation}.js`);
+  restWorker = await startThread(file);
+}
+
+async function stopRest(): Promise<void> {
+  console.log('stop rest');
+  await stopThread(restWorker);
+  restWorker = null;
 }
 
 async function stopAll(): Promise<void> {
@@ -82,37 +122,6 @@ async function stopAll(): Promise<void> {
   await stopRest();
   await stopAttack();
   await stopFindCorpse();
-}
-
-async function startAttack(): Promise<void> {
-}
-
-async function stopAttack(): Promise<void> {
-
-}
-
-async function startFindCorpse(): Promise<void> {
-
-}
-
-async function stopFindCorpse(): Promise<void> {
-
-}
-
-async function startGoHome(): Promise<void> {
-
-}
-
-async function stopGoHome(): Promise<void> {
-
-}
-
-async function startRest(): Promise<void> {
-  
-}
-
-async function stopRest(): Promise<void> {
-
 }
 
 start();

@@ -141,19 +141,23 @@ function polyPoints(points: [number, number][]): TPoint[] {
 async function microAdjustFacing(targetPoint: TPoint): Promise<void> {
   const { player_facing: playFacing, player_x, player_y } = vision.monitorValue;
   const targetFacing: number = calculateFacing(targetPoint, { x: player_x, y: player_y });
-  const facingDis: number = Math.abs(targetFacing - playFacing);
+  let facingDis: number = 0;
 
   let code: number;
   if (playFacing < targetFacing) {
     if (targetFacing - playFacing > FULL_FACING / 2) {
       code = keyMap.d;
+      facingDis = (playFacing + FULL_FACING - targetFacing);
     } else {
+      facingDis = targetFacing - playFacing;
       code = keyMap.a;
     }
   } else {
     if (playFacing - targetFacing > FULL_FACING / 2) {
+      facingDis = (targetFacing + FULL_FACING - playFacing);
       code = keyMap.a;
     } else {
+      facingDis = playFacing - targetFacing;
       code = keyMap.d;
     }
   }

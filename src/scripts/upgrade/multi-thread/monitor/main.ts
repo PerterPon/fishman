@@ -11,16 +11,16 @@ import * as _ from 'lodash';
 import { capture } from "src/ability/capture";
 import { getTemplate } from "src/model/template";
 import { templateJudge } from "src/ability/image_id";
-import { sleep, colorAt, pixelAt } from "src/util";
+import { sleep, pixelAt } from "src/util";
 import vision from 'src/vision';
 
 import { ETemplate } from "src/constants/enums";
+import { MONITOR_STATUS_LENGTH, MONITOR_STATUS_INDEX, MONITOR_POINT } from 'src/constants';
 
 import { TPoint, TBitmap, TPointTemplate, TRect, TPixel } from "fishman";
 
 let flagPoint: TPoint = null;
 let run: boolean = false;
-const pontCount: number = 14;
 
 const rgbValueMap:any = {
   "0": "0000",
@@ -44,6 +44,11 @@ const rgbValueMap:any = {
 export let statusValue: {[name: string]: any} = {};
 export const eventBus: EventEmitter = new EventEmitter();
 
+export async function start(): Promise<void> {
+    init();
+    await startMonitor();
+}
+
 export function init(): void {
     vision.monitor = eventBus;
     findFlag();
@@ -53,7 +58,6 @@ export async function startMonitor(): Promise<void> {
     run = true;
     initStatusValue();
     updateStatusValue(statusValue, parsePluginValue());
-    // monitorAngle();
     while (run) {
         const newValue = parsePluginValue();
         if (newValue === null) {
@@ -72,35 +76,6 @@ export async function startMonitor(): Promise<void> {
 export async function stopMonitor(): Promise<void>{
     run = false;
 }
-
-export const statusArray: {[name: string]: any} = {
-    moving : 1,
-    combat : 1,
-    attack : 1,
-    player_health : 7,
-    player_energy : 7,
-    player_level : 7,
-    player_dead : 1,
-    player_ghost : 1,
-    player_swimming : 1,
-    player_can_resurrection : 1,
-    player_x : 14,
-    player_y : 14,
-    player_facing : 14,
-    player_corpse_x : 14,
-    player_corpse_y : 14,
-    player_casting : 1,
-    target_dead : 1,
-    target_exists : 1,
-    target_health : 7,
-    target_level : 7,
-    target_minDistance : 7,
-    target_maxDistance : 7,
-    float_xp : 12,
-    float_gold : 20
-};
-
-export const statusIndexMap = Object.keys(statusArray);
 
 function findFlag(exit: boolean = true): void {
     const img: TBitmap = capture();
@@ -121,7 +96,7 @@ function parsePluginValue(): {[name: string]: any} {
     const infoRect: TRect = {
         x: flagPoint.x,
         y: flagPoint.y + 1,
-        w: pontCount,
+        w: MONITOR_POINT,
         h: 1
     };
     const infoImg: TBitmap = capture(infoRect);
@@ -130,16 +105,24 @@ function parsePluginValue(): {[name: string]: any} {
         return null;
     }
     const newValue = parseValueFromBinaryArray(binaryArray);
+    updateSharedValue(newValue);
     return newValue;
+}
+
+function updateSharedValue(monitorValue: {[name: string]: any}): void {
+  for (let i = 0; i < MONITOR_STATUS_INDEX.length; i++) {
+    const key: string = MONITOR_STATUS_INDEX[i];
+    const value: number = monitorValue[key];
+    vision.sharedValue[i] = value;
+  }
 }
 
 function parseValueFromBinaryArray(binaryArray: string) {
     let curPos: number = 0;
     let statusValue: {[name: string]: any} = {};
-    for (let i = 0; i < statusIndexMap.length; i++) {
-        const keyName: string = statusIndexMap[i];
-        const keyLength: number = statusArray[keyName];
-        
+    for (let i = 0; i < MONITOR_STATUS_INDEX.length; i++) {
+        const keyName: string = MONITOR_STATUS_INDEX[i];
+        const keyLength: number = MONITOR_STATUS_LENGTH[keyName];
         const valueBinary: string = binaryArray.substr(curPos, keyLength);
         
         const value: number = parseInt(valueBinary, 2);

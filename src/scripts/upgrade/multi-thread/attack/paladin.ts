@@ -8,7 +8,7 @@
 import { parentPort } from 'worker_threads';
 
 import { keyPress } from 'src/ability/keyboard';
-import { init as coreInit } from 'src/scripts/upgrade/multi-thread/init';
+// import { init as coreInit } from 'src/scripts/upgrade/multi-thread/init';
 
 import { keyMap } from 'src/constants/keymap';
 import { sleep } from 'src/util';
@@ -63,7 +63,7 @@ async function startAttack(): Promise<void> {
 }
 
 async function init(): Promise<void> {
-  await coreInit();
+  // await coreInit();
   await initEvent();
 }
 

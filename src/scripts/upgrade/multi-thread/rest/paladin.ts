@@ -5,9 +5,7 @@
  * Create: Sun Dec 22 2019 16:42:46 GMT+0800 (中国标准时间)
  */
 
-import { parentPort, workerData } from 'worker_threads';
 import * as path from 'path';
-import * as fs from 'fs';
 
 import { keyPress } from 'src/ability/keyboard';
 import { keyMap } from 'src/constants/keymap';
@@ -15,14 +13,12 @@ import { startMicroTask, stopMicroTask } from 'src/util/micro_task';
 
 import * as config from 'src/util/config';
 
-import { init as coreInit } from 'src/scripts/upgrade/multi-thread/init';
 import vision from 'src/vision';
 import { sleep } from 'src/util';
 
 const configFile: string = path.join(__dirname, 'paladin.json');
 
-async function start(): Promise<void> {
-  await coreInit();
+export async function start(): Promise<void> {
   await initConfig();
   await startRest();
 }
@@ -80,9 +76,3 @@ async function restorePower(power: number = 95): Promise<void> {
   });
 
 }
-
-parentPort.once('message', (value) => {
-  if ('start' === value) {
-    start();
-  }
-});

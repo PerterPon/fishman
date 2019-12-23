@@ -5,10 +5,8 @@
 * Create: Sun Dec 22 2019 12:34:04 GMT+0800 (中国标准时间)
 */
 
-import { workerData } from 'worker_threads';
 import * as path from 'path';
 
-import { init as coreInit } from 'src/scripts/upgrade/multi-thread/init';
 import { runTo, aiRunTo, stopRun } from 'src/ability/run';
 import { keyPress } from 'src/ability/keyboard';
 import { keyMap } from 'src/constants/keymap';
@@ -23,12 +21,19 @@ const roads: TRoadPoint[] = [{"x":4370,"y":5227,"facing":1694},{"x":4289,"y":524
 
 export async function start(): Promise<void> {
   await init();
+  await rest();
   tryFindTarget();
   startPatrol();
 }
 
+async function rest(): Promise<void> {
+  const targetRestFile: string = path.join(__dirname, 'rest', `${vision.occupation}.js`);
+  const restWay = require(targetRestFile);
+  await restWay.start();
+}
+
 async function init(): Promise<void> {
-  await coreInit();
+  // await coreInit();
 }
 
 async function tryFindTarget(): Promise<void> {

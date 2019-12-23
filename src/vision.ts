@@ -25,6 +25,8 @@ let currentOccupation: string = null;
 let monitorValue: {[name: string]: any} = null;
 let monitor: EventEmitter;
 
+let currentSharedValue: Uint32Array = null;
+
 export default {
   get action(): TAction {
     return currentAction;
@@ -105,5 +107,12 @@ export default {
   },
   set deviceHandler(val: number) {
     currentDeviceHandler = val;
+  },
+
+  get sharedValue(): Uint32Array {
+    return currentSharedValue;
+  },
+  set sharedValue(val: Uint32Array) {
+    currentSharedValue = val;
   }
 }

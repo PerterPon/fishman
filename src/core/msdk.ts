@@ -40,12 +40,11 @@ export async function init(): Promise<void> {
   });
 
   if (true === isMainThread) {
-    deviceHandler = vision.deviceHandler;
-    releaseAllKey();
-    return;
-  } else {
     deviceHandler = libm.M_Open(1);
     vision.deviceHandler = deviceHandler;
+    releaseAllKey();
+  } else {
+    deviceHandler = vision.deviceHandler;
     releaseAllKey();
   }
 

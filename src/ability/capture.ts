@@ -7,7 +7,7 @@
 
 // import { screen, Bitmap } from "robotjs";
 
-import { TRect, TBitmap, TSituationProbabilityModel } from "fishman";
+import { TRect, TBitmap } from "fishman";
 
 import { debug } from 'debug';
 
